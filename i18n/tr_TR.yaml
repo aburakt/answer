@@ -341,7 +341,7 @@ backend:
   reason:
     spam:
       name:
-        other: spam
+        other: "istenmeyen içerik"
       desc:
         other: Bu gönderi bir reklam veya vandalizm. Mevcut konuyla ilgili veya yararlı değil.
     rude_or_abusive:
@@ -846,16 +846,18 @@ ui:
     http_403: HTTP Hatası 403
     logout: Çıkış Yap
     posts: Gönderiler
-    ai_assistant: AI Assistant
+    ai_assistant: "Yapay Zekâ Asistanı"
   ai_assistant:
-    description: Got a question? Ask it and get answers, perspectives, and recommendations.
-    recent_conversations: Recent Conversations
-    show_more: Show more
-    new: New chat
-    ai_generate: AI-generated from posts and may not be accurate.
-    copy: Copy
-    ask_a_follow_up: Ask a follow-up
-    ask_placeholder: Ask a question
+    description: "Bir sorunuz mu var? Sorun; yanıtlar, farklı bakış açıları ve öneriler alın."
+    recent_conversations: "Son Sohbetler"
+    show_more: "Daha fazla göster"
+    new: "Yeni sohbet"
+    ai_generate: "Gönderilerden yapay zekâ ile üretilmiştir, hatalı olabilir."
+    copy: "Kopyala"
+    ask_a_follow_up: "Devam sorusu sorun"
+    ask_placeholder: "Bir soru sorun"
+    thinking: "Düşünüyor…"
+    thoughts: "Düşünceler"
   notifications:
     title: Bildirimler
     inbox: Gelen Kutusu
@@ -1135,7 +1137,7 @@ ui:
     search_placeholder: Etiket adına göre filtrele
     no_desc: Bu etiketin açıklaması yok.
     more: Daha Fazla
-    wiki: Wiki
+    wiki: "Viki"
   ask:
     title: Soru Oluştur
     edit_title: Soruyu Düzenle
@@ -1200,12 +1202,12 @@ ui:
     search:
       placeholder: Ara
   footer:
-    build_on: Powered by <1> Apache Answer </1>
+    build_on: "<1> Apache Answer </1> altyapısıyla çalışır"
   upload_img:
     name: Değiştir
     loading: yükleniyor...
   pic_auth_code:
-    title: Captcha
+    title: "Doğrulama kodu"
     placeholder: Yukarıdaki metni yazın
     msg:
       empty: Captcha boş olamaz.
@@ -1311,7 +1313,7 @@ ui:
         caption: İnsanlar size "@kullaniciadi" şeklinde bahsedebilir.
         msg: Kullanıcı adı boş olamaz.
         msg_range: Kullanıcı adı 2-30 karakter uzunluğunda olmalıdır.
-        character: 'Must use the character set "a-z", "0-9", "- . _"'
+        character: "Yalnızca \"a-z\", \"0-9\", \"- . _\" karakterleri kullanılabilir"
       avatar:
         label: Profil resmi
         gravatar: Gravatar
@@ -1323,7 +1325,7 @@ ui:
       bio:
         label: Hakkımda
       website:
-        label: Website
+        label: "Web sitesi"
         placeholder: "https://example.com"
         msg: Website formatı yanlış
       location:
@@ -1484,7 +1486,7 @@ ui:
     signup: Kayıt Ol
     logout: Çıkış Yap
     verify: Doğrula
-    create: Oluştur
+    create: "Soru oluştur"
     approve: Onayla
     reject: Reddet
     skip: Atla
@@ -1513,7 +1515,7 @@ ui:
     filter: Filtrele
     ignore: Yoksay
     submit: Gönder
-    normal: Normal
+    normal: "Normal"
     closed: Kapalı
     deleted: Silindi
     deleted_permanently: Kalıcı olarak silindi
@@ -1533,7 +1535,7 @@ ui:
     follow: Takip Et
     following: Takip Ediliyor
     counts: "{{count}} Sonuç"
-    counts_loading: "... Results"
+    counts_loading: "... Sonuç"
     more: Daha Fazla
     sort_btns:
       relevance: İlgililik
@@ -1585,7 +1587,7 @@ ui:
     all_questions: Tüm Sorular
     x_questions: "{{ count }} Soru"
     x_answers: "{{ count }} cevap"
-    x_posts: "{{ count }} Posts"
+    x_posts: "{{ count }} Gönderi"
     questions: Sorular
     answers: Cevaplar
     newest: En Yeni
@@ -1631,7 +1633,7 @@ ui:
     answered: cevaplandı
     asked: sordu
     downvoted: negatif oylandı
-    mod_short: MOD
+    mod_short: "MOD"
     mod_long: Moderatörler
     x_reputation: itibar
     x_votes: alınan oy
@@ -1670,9 +1672,9 @@ ui:
     ssl_enabled:
       label: SSL'i Etkinleştir
     ssl_enabled_on:
-      label: On
+      label: "Açık"
     ssl_enabled_off:
-      label: Off
+      label: "Kapalı"
     ssl_mode:
       label: SSL Modu
     ssl_root_cert:
@@ -1716,7 +1718,7 @@ ui:
     admin_name:
       label: İsim
       msg: İsim boş olamaz.
-      character: 'Must use the character set "a-z", "0-9", " - . _"'
+      character: "Yalnızca \"a-z\", \"0-9\", \" - . _\" karakterleri kullanılabilir"
       msg_max_length: İsim 2 ile 30 karakter arasında olmalıdır.
     admin_password:
       label: Parola
@@ -1777,7 +1779,7 @@ ui:
     branding: Marka
     legal: Yasal
     write: Yaz
-    terms: Terms
+    terms: "Koşullar"
     tos: Kullanım Şartları
     privacy: Gizlilik
     seo: SEO
@@ -1788,17 +1790,17 @@ ui:
     plugins: Eklentiler
     installed_plugins: Kurulu Eklentiler
     apperance: Görünüm
-    community: Community
-    advanced: Advanced
-    tags: Tags
-    rules: Rules
-    policies: Policies
-    security: Security
-    files: Files
-    apikeys: API Keys
-    intelligence: Intelligence
-    ai_assistant: AI Assistant
-    ai_settings: AI Settings
+    community: "Topluluk"
+    advanced: "Gelişmiş"
+    tags: "Etiketler"
+    rules: "Kurallar"
+    policies: "Politikalar"
+    security: "Güvenlik"
+    files: "Dosyalar"
+    apikeys: "API Anahtarları"
+    intelligence: "Yapay Zekâ"
+    ai_assistant: "Yapay Zekâ Asistanı"
+    ai_settings: "Yapay Zekâ Ayarları"
     mcp: MCP
   website_welcome: '{{site_name}} sitesine hoş geldiniz'
   user_center:
@@ -1851,9 +1853,9 @@ ui:
       links: Bağlantılar
       plugins: Eklentiler
       github: GitHub
-      blog: Blog
+      blog: "Blog"
       contact: İletişim
-      forum: Forum
+      forum: "Forum"
       documents: Belgeler
       feedback: Geribildirim
       support: Destek
@@ -1915,7 +1917,7 @@ ui:
         fields:
           users:
             label: Toplu kullanıcı ekle
-            placeholder: "John Smith, john@example.com, BUSYopr2\nAlice, alice@example.com, fpDntV8q"
+            placeholder: "Ahmet Yılmaz, ahmet@example.com, BUSYopr2\nAyşe Demir, ayse@example.com, fpDntV8q"
             text: İsim, e-posta, parola bilgilerini virgülle ayırın. Her satırda bir kullanıcı.
             msg: "Lütfen kullanıcının e-postasını girin, her satırda bir tane."
           display_name:
@@ -1937,7 +1939,7 @@ ui:
       created_at: Oluşturulma zamanı
       delete_at: Silinme zamanı
       suspend_at: Askıya Alınma Zamanı
-      suspend_until: Suspend until
+      suspend_until: "Şu tarihe kadar askıya al"
       status: Durum
       role: Rol
       action: Eylem
@@ -1948,7 +1950,7 @@ ui:
       inactive: Etkin Değil
       suspended: Askıya Alınmış
       deleted: Silinmiş
-      normal: Normal
+      normal: "Normal"
       Moderator: Moderatör
       Admin: Yönetici
       User: Kullanıcı
@@ -1972,8 +1974,8 @@ ui:
       suspend_user:
         title: Bu kullanıcıyı askıya al
         content: Askıya alınmış bir kullanıcı giriş yapamaz.
-        label: How long will the user be suspended for?
-        forever: Forever
+        label: "Kullanıcı ne kadar süreyle askıya alınacak?"
+        forever: "Süresiz"
     questions:
       page_title: Sorular
       unlisted: Listelenmemiş
@@ -2035,11 +2037,11 @@ ui:
         msg: Saat dilimi boş olamaz.
         text: Sizinle aynı saat dilimindeki bir şehri seçin.
       avatar:
-        label: Default avatar
-        text: For users without a custom avatar of their own.
+        label: "Varsayılan avatar"
+        text: "Kendi avatarı olmayan kullanıcılar için."
       gravatar_base_url:
-        label: Gravatar base URL
-        text: URL of the Gravatar provider's API base. Ignored when empty.
+        label: "Gravatar temel adresi"
+        text: "Gravatar sağlayıcısının API temel adresi. Boş bırakılırsa kullanılmaz."
     smtp:
       page_title: SMTP
       from_email:
@@ -2084,7 +2086,7 @@ ui:
     branding:
       page_title: Marka
       logo:
-        label: Logo
+        label: "Logo"
         msg: Logo boş olamaz.
         text: Sitenizin sol üst köşesindeki logo resmi. 56 yüksekliğinde ve 3:1'den büyük en-boy oranlı geniş dikdörtgen bir resim kullanın. Boş bırakılırsa, site başlık metni gösterilecektir.
       mobile_logo:
@@ -2111,10 +2113,10 @@ ui:
         always_display: Her zaman harici içeriği göster
         ask_before_display: Harici içeriği göstermeden önce sor
     write:
-      page_title: Files
+      page_title: "Dosyalar"
       min_content:
-        label: Minimum question body length
-        text: Minimum allowed question body length in characters.
+        label: "En kısa soru metni uzunluğu"
+        text: "Soru metninde izin verilen en az karakter sayısı."
       restrict_answer:
         title: Cevap yazma
         label: Her kullanıcı aynı soru için sadece bir cevap yazabilir
@@ -2170,9 +2172,9 @@ ui:
         label: Ana renk
         text: Temalarınızda kullanılan renkleri değiştirin
       layout:
-        label: Layout
-        full_width: Full-width
-        fixed_width: Fixed-width
+        label: "Yerleşim"
+        full_width: "Tam genişlik"
+        fixed_width: "Sabit genişlik"
     css_and_html:
       page_title: CSS ve HTML
       custom_css:
@@ -2180,15 +2182,15 @@ ui:
         text: >
           Bu &lt;link> olarak eklenecektir
       head:
-        label: Head
+        label: "Head"
         text: >
           Bu &lt;/head> öncesine eklenecektir
       header:
-        label: Header
+        label: "Üst bilgi (header)"
         text: >
           Bu &lt;body> sonrasına eklenecektir
       footer:
-        label: Footer
+        label: "Alt bilgi (footer)"
         text: Bu &lt;/body> öncesine eklenecektir
       sidebar:
         label: Kenar çubuğu
@@ -2214,6 +2216,10 @@ ui:
         title: Parola ile giriş
         label: E-posta ve parola ile girişe izin ver
         text: "UYARI: Kapatırsanız, daha önce başka bir giriş yöntemi yapılandırmadıysanız giriş yapamayabilirsiniz."
+      email_verification:
+        title: "E-posta doğrulaması"
+        label: "E-posta doğrulaması iste"
+        text: "Açıksa kullanıcılar siteyi kullanmadan önce e-posta adreslerini doğrulamalıdır."
     installed_plugins:
       title: Kurulu Eklentiler
       plugin_link: Eklentiler işlevselliği genişletir ve artırır. Eklentileri <1>Eklenti Deposu</1>'nda bulabilirsiniz.
@@ -2278,69 +2284,69 @@ ui:
       status: Durum
       title: Rozetler
     apikeys:
-      title: API Keys
-      add_api_key: Add API Key
-      desc: Description
-      scope: Scope
-      key: Key
-      created: Created
-      last_used: Last used
+      title: "API Anahtarları"
+      add_api_key: "API Anahtarı Ekle"
+      desc: "Açıklama"
+      scope: "Kapsam"
+      key: "Anahtar"
+      created: "Oluşturulma"
+      last_used: "Son kullanım"
       add_or_edit_modal:
-        add_title: Add API Key
-        edit_title: Edit API Key
-        description: Description
-        description_required: Description is required.
-        scope: Scope
-        global: Global
-        read-only: Read-only
+        add_title: "API Anahtarı Ekle"
+        edit_title: "API Anahtarını Düzenle"
+        description: "Açıklama"
+        description_required: "Açıklama zorunludur."
+        scope: "Kapsam"
+        global: "Tam yetki"
+        read-only: "Salt okunur"
       created_modal:
-        title: API key created
-        api_key: API key
-        description: This key will not be displayed again. Make sure you take a copy before continuing.
+        title: "API anahtarı oluşturuldu"
+        api_key: "API anahtarı"
+        description: "Bu anahtar bir daha gösterilmeyecek. Devam etmeden önce bir kopyasını aldığınızdan emin olun."
       delete_modal:
-        title: Delete API Key
-        content: Any applications or scripts using this key will no longer be able to access the API. This is permanent!
+        title: "API Anahtarını Sil"
+        content: "Bu anahtarı kullanan uygulama ve betikler artık API'ye erişemeyecek. Bu işlem geri alınamaz!"
     ai_settings:
       enabled:
-        label: AI enabled
-        check: Enable AI features
-        text: The AI model must be configured correctly before it can be used.
+        label: "Yapay zekâ açık"
+        check: "Yapay zekâ özelliklerini aç"
+        text: "Kullanılabilmesi için önce yapay zekâ modelinin doğru yapılandırılması gerekir."
       provider:
-        label: Provider
+        label: "Sağlayıcı"
       api_host:
-        label: API host
-        msg: API host is required
+        label: "API adresi"
+        msg: "API adresi zorunludur"
       api_key:
-        label: API key
-        check: Check
-        check_success: "Connection successful."
-        msg: API key is required
+        label: "API anahtarı"
+        check: "Kontrol et"
+        check_success: "Bağlantı başarılı."
+        msg: "API anahtarı zorunludur"
       model:
-        label: Model
-        msg: Model is required
-      add_success: AI settings updated successfully.
+        label: "Model"
+        msg: "Model zorunludur"
+      add_success: "Yapay zekâ ayarları güncellendi."
     conversations:
-      topic: Topic
-      helpful: Helpful
-      unhelpful: Unhelpful
-      created: Created
-      action: Action
-      empty: No conversations found.
+      topic: "Konu"
+      helpful: "Yararlı"
+      unhelpful: "Yararsız"
+      created: "Oluşturulma"
+      action: "İşlem"
+      empty: "Sohbet bulunamadı."
       delete_modal:
-        title: Delete conversation
-        content: Are you sure you want to delete this conversation? This is permanent!
-        delete_success: Conversation deleted successfully.
+        title: "Sohbeti sil"
+        content: "Bu sohbeti silmek istediğinizden emin misiniz? Bu işlem geri alınamaz!"
+        delete_success: "Sohbet silindi."
     mcp:
       mcp_server:
-        label: MCP server
-        switch: Enabled
+        label: "MCP sunucusu"
+        switch: "Açık"
       type:
-        label: Type
+        label: "Tür"
       url:
         label: URL
       http_header:
-        label: HTTP header
-        text: Please replace {key} with the API Key.
+        label: "HTTP başlığı"
+        text: "{key} yerine API anahtarını yazın."
   form:
     optional: (isteğe bağlı)
     empty: boş olamaz
@@ -2437,7 +2443,7 @@ ui:
     user_normal: Bu kullanıcı zaten normal durumda.
     user_suspended: Bu kullanıcı askıya alındı.
     user_deleted: Bu kullanıcı silindi.
-    user_added: User has been added successfully.
+    user_added: "Kullanıcı eklendi."
     badge_activated: Bu rozet etkinleştirildi.
     badge_inactivated: Bu rozet devre dışı bırakıldı.
     users_deleted: Bu kullanıcılar silindi.
