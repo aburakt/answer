@@ -4,8 +4,8 @@ Merhaba. Intranetteki Answer'ı 1.6.0'dan 2.0.3'e taşıyoruz. Giriş Keycloak't
 giris'e geçiyor. Geçişin adımları `RUNBOOK.md`'de. 1.6.0'ı sen kurduğun için
 aşağıdakiler yalnız sende var. Soru olursa Burak'a yaz.
 
-**Sır göndermeyin.** Parola, client secret, DSN'deki parola gibi değerleri
-Infisical'a koyun; bu listede yalnız adları ve yerleri lazım.
+**Sır göndermeyin.** Parola, client secret ya da DSN'deki parola gibi değerler bu
+nota yazılmaz. Yalnız adları ve sunucuda nerede durdukları lazım.
 
 ## 1. Senden istediklerimiz
 
