@@ -18,7 +18,7 @@ nota yazılmaz. Yalnız adları ve sunucuda nerede durdukları lazım.
       `extra_hosts` bize lazım.
 - [ ] `/data/conf/config.yaml`. Parolayı `***` yapıp gönderin.
 - [ ] Önünde nginx varsa ilgili `server`/`location` bloğu ve dış adres
-      (ör. `https://answer.egmidb.gov.tr`). Yol kökte mi, `/answer` altında mı?
+      (ör. `https://forum.egmidb.gov.tr`). Yol kökte mi, `/answer` altında mı?
 - [ ] Yüklü plugin'ler: `docker exec <konteyner> answer plugin`
 - [ ] Şema sürümü: `SELECT * FROM version;` (provada 1.6.0'ı 28 olarak gördük).
 
