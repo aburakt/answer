@@ -1,7 +1,7 @@
 # Answer 1.6.0 → 2.0.3 geçiş runbook'u (intranet)
 
 Kurulum: Answer Docker'da, PostgreSQL sunucunun kendisinde. Giriş Keycloak'tan
-giris-sso köprüsüne geçer (giris reposu `sso/`, belge: giris `/ldap-config`).
+YAPI'deki SSO modülüne geçer (kaynak giris reposu `sso/`, belge: giris `/ldap-config`).
 
 ## Provada denenenler (17 Kasım 2026)
 

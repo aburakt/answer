@@ -17,7 +17,7 @@
 -- under the License.
 --
 
--- ib: Keycloak (connector-basic) kayıtlarını giris-sso köprüsüne taşır.
+-- ib: Keycloak (connector-basic) kayıtlarını YAPI SSO modülüne (giris) taşır.
 -- Köprü de connector-basic ile bağlanır (provider 'basic' kalır); yalnız
 -- external_id, Keycloak'ın `sub` UUID'si yerine sicil (köprünün `sub`'ı) olur.
 -- Keycloak'ta user_id_json_path zaten preferred_username idiyse değişen satır

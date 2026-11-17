@@ -50,8 +50,8 @@ değişikliği. Kod değiştiysen dosyanın kendisini de gönder.
       - Hangi Redis'e bağlanıyor (host/port)? Parolanın yalnız yerini yaz.
       - Anahtar biçimi ne?
       - YAPI `get_foto_from_redis_by_sicil` mi çağrılıyor?
-      Yeni düzende fotoğraf giriş anında giris-sso tarafından alınıyor. Eskisini
-      kaldırabilir miyiz, bunu bilmemiz gerekiyor.
+      Yeni düzende fotoğrafı YAPI'deki SSO modülü veriyor (`/sso/avatar/<sicil>`).
+      Eskisini kaldırabilir miyiz, bunu bilmemiz gerekiyor.
 - [ ] Bunların dışında değiştirdiğin bir şey varsa o da.
 
 ### 1.4 Sunucu
@@ -73,8 +73,8 @@ değişikliği. Kod değiştiysen dosyanın kendisini de gönder.
 - `sql/10-keycloak-to-giris.sql` ve `sql/20-site-settings.sql`. İkisi de iki kez
   çalıştırılırsa sorun çıkarmaz.
 - `RUNBOOK.md`: yedek, upgrade, eşleme, smoke test ve geri dönüş adımları.
-- giris-sso (daire-devs/giris, `sso/`): ayrı bir küçük servis olarak kurulacak.
-  Kurulumu ayrıca yazacağız.
+- Giriş: YAPI'nin Java backend'ine eklenen SSO modülü (kaynak daire-devs/giris,
+  `sso/`). Ayrı bir servis kurulmayacak; modülü YAPI ekibi ekliyor.
 
 ## 3. Geçiş günü senden beklenen
 
