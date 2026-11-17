@@ -1,0 +1,5 @@
+slug_name: ib_hook
+type: agent
+version: 0.1.0
+author: ib
+link: https://github.com/aburakt/answer/tree/main/plugins/ib-hook

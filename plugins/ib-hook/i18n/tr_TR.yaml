@@ -1,0 +1,168 @@
+# ib_hook kendi metinlerine ek olarak, upstream'de tr_TR'si olmayan ve imajda
+# kullandığımız connector-basic, reviewer-basic, captcha-basic ve quick-links
+# eklentilerinin Türkçesini de taşır. `answer build`
+# bütün eklentilerin i18n dosyalarını eklenti anahtarı bazında birleştirir.
+plugin:
+  ib_hook:
+    backend:
+      info:
+        name:
+          other: Hook geçidi
+        description:
+          other: Diğer uygulamalardan gelen imzalı webhook'larla soru açar ve günceller.
+      config:
+        sources:
+          title:
+            other: Kaynaklar
+          description:
+            other: 'Kaynakların JSON listesi: id, bot_email, tags, link_text. Her kaynağın secret değeri ANSWER_HOOK_SECRET_<ID> ortam değişkeninden okunur.'
+  basic_connector:
+    backend:
+      name:
+        other: basic
+      info:
+        name:
+          other: OAuth2 Temel
+        description:
+          other: Genel OAuth2 eklentisi
+      config:
+        name:
+          title:
+            other: Ad
+          description:
+            other: Giriş sayfasında gösterilecek bağlantı adı
+        client_id:
+          title:
+            other: İstemci kimliği (Client ID)
+          description:
+            other: Uygulamanızın Client ID değeri
+        client_secret:
+          title:
+            other: İstemci gizli anahtarı (Client Secret)
+          description:
+            other: Uygulamanızın Client Secret değeri
+        authorize_url:
+          title:
+            other: Yetkilendirme adresi
+          description:
+            other: Sağlayıcının yetkilendirme (authorize) adresi
+        token_url:
+          title:
+            other: Token adresi
+          description:
+            other: Sağlayıcının token adresi
+        user_json_url:
+          title:
+            other: Kullanıcı bilgisi adresi
+          description:
+            other: Kullanıcı bilgisi bu adresten alınır
+        user_id_json_path:
+          title:
+            other: Kullanıcı kimliği JSON yolu
+          description:
+            other: 'Kullanıcı JSON''unda kullanıcı kimliğinin yolu. Örn: user.id'
+        user_display_name_json_path:
+          title:
+            other: Görünen ad JSON yolu
+          description:
+            other: 'Kullanıcı JSON''unda görünen adın yolu. Örn: user.name'
+        user_username_json_path:
+          title:
+            other: Kullanıcı adı JSON yolu
+          description:
+            other: 'Kullanıcı JSON''unda kullanıcı adının yolu. Örn: user.login'
+        user_email_json_path:
+          title:
+            other: E-posta JSON yolu
+          description:
+            other: 'Kullanıcı JSON''unda e-postanın yolu. Örn: user.email'
+        user_avatar_json_path:
+          title:
+            other: Avatar JSON yolu
+          description:
+            other: 'Kullanıcı JSON''unda avatar adresinin yolu. Örn: user.avatar_url'
+        check_email_verified:
+          title:
+            other: E-posta doğrulamasını kontrol et
+          label:
+            other: OAuth2 sağlayıcısı e-postayı doğrulamıştır
+        email_verified_json_path:
+          title:
+            other: E-posta doğrulandı JSON yolu
+          description:
+            other: 'Kullanıcı JSON''unda e-posta doğrulama alanının yolu. Örn: user.email_verified'
+        scope:
+          title:
+            other: Kapsam (scope)
+          description:
+            other: 'Uygulamanızın OAuth kapsamı. Birden fazla kapsam `,` ile ayrılır. Örn: user.email,user.age'
+        logo_svg:
+          title:
+            other: Logo SVG
+          description:
+            other: Uygulama logosunun base64 biçimindeki SVG'si
+  basic_reviewer:
+    backend:
+      info:
+        name:
+          other: Temel İnceleme
+        description:
+          other: Genel içerik inceleme kuralları eklentisi
+      config:
+        review_post:
+          title:
+            other: Gönderi yayınlanmadan önce
+          label_all:
+            other: Tüm yeni gönderiler elle onaylanmalı
+          label_first:
+            other: Yazarın daha önce onaylanmış bir gönderisi olmalı
+          description:
+            other: Sorular ya da yanıtlar inceleme kuyruğunda bekletilir ve onaylanana kadar görünmez.
+          select_option:
+            other: Seçin...
+        review_post_keywords:
+          title:
+            other: İncelemeye alınacak kelimeler
+          description:
+            other: 'Bir gönderinin içeriği, IP adresi ya da tarayıcı bilgisi bu kelimelerden birini içeriyorsa gönderi inceleme kuyruğuna alınır. Her satıra bir kelime ya da IP adresi yazın. Kelime içinde de eşleşir: “alfa”, “Alfabe” ile eşleşir.'
+        disallowed_post_keywords:
+          title:
+            other: Yasaklı kelimeler
+          description:
+            other: 'Bir gönderinin içeriği, IP adresi ya da tarayıcı bilgisi bu kelimelerden birini içeriyorsa gönderi silinir. Her satıra bir kelime ya da IP adresi yazın. Kelime içinde de eşleşir: “alfa”, “Alfabe” ile eşleşir.'
+      comment:
+        need_review: Onay bekliyor.
+        match_word_review: 'Onay bekliyor, eşleşen kelimeler: "%s".'
+  basic_captcha:
+    backend:
+      info:
+        name:
+          other: Temel Doğrulama Kodu
+        description:
+          other: Varsayılan görsel doğrulama kodu
+    frontend:
+      title: Doğrulama kodu
+      placeholder: Yukarıdaki metni yazın
+      msg:
+        empty: Doğrulama kodu boş olamaz.
+      verify: Doğrula
+  quick_links:
+    backend:
+      info:
+        name:
+          other: Hızlı Bağlantılar
+        description:
+          other: Kenar çubuğundaki etiketleri ya da bağlantıları özelleştirin
+      config:
+        tags:
+          title:
+            other: Etiketler
+          description:
+            other: Kenar çubuğunda hızlı erişilen etiketler.
+        links:
+          title:
+            other: Bağlantılar
+          description:
+            other: “başlık, URL” virgülle ayrılır. Her satıra bir bağlantı.
+    frontend:
+      quick_links: Hızlı Bağlantılar

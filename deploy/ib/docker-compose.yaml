@@ -1,0 +1,25 @@
+# ib: intranet kurulumu. PostgreSQL konteynerde değil, sunucunun kendisinde
+# çalışır. İmaj dev VPS'te build edilir, `docker save` ile USB'ye alınır.
+# Geçiş adımları için deploy/ib/RUNBOOK.md.
+services:
+  answer:
+    image: ib/answer:${ANSWER_IMAGE_TAG:?ANSWER_IMAGE_TAG gerekli}
+    build:
+      context: ../..
+      args:
+        TIMEZONE: Europe/Istanbul
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${ANSWER_PORT:-9080}:80"
+    extra_hosts:
+      # Konteynerden host'taki PostgreSQL'e erişim. Postgres tarafında
+      # listen_addresses ve pg_hba.conf bu ağın alt ağına izin vermeli.
+      - "host.docker.internal:host-gateway"
+    env_file: .env
+    environment:
+      TZ: Europe/Istanbul
+    volumes:
+      - answer-data:/data
+
+volumes:
+  answer-data:

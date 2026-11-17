@@ -1,0 +1,14 @@
+plugin:
+  ib_hook:
+    backend:
+      info:
+        name:
+          other: Hook gateway
+        description:
+          other: Creates and updates questions from signed webhooks sent by other applications.
+      config:
+        sources:
+          title:
+            other: Sources
+          description:
+            other: 'JSON list of sources: id, bot_email, tags, link_text. Each source secret is read from the ANSWER_HOOK_SECRET_<ID> environment variable.'
