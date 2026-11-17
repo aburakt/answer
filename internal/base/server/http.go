@@ -22,6 +22,8 @@ package server
 import (
 	"html/template"
 	"io/fs"
+	"os"
+	"strings"
 
 	brotli "github.com/anargu/gin-brotli"
 	"github.com/apache/answer/internal/base/middleware"
@@ -50,19 +52,33 @@ func NewHTTPServer(debug bool,
 		gin.SetMode(gin.ReleaseMode)
 	}
 	r := gin.New()
-	r.Use(brotli.Brotli(brotli.DefaultCompression), middleware.ExtractAndSetAcceptLanguage, shortIDMiddleware.SetShortIDFlag())
+	r.Use(middleware.Recovery(
+		uiConf.APIBaseURL+"/answer/api/v1",
+		uiConf.APIBaseURL+"/answer/admin/api",
+	))
+	r.Use(func(ctx *gin.Context) {
+		if strings.Contains(ctx.Request.URL.Path, "/chat/completions") {
+			return
+		}
+		brotli.Brotli(brotli.DefaultCompression)(ctx)
+	}, middleware.ExtractAndSetAcceptLanguage, shortIDMiddleware.SetShortIDFlag())
 	r.GET("/healthz", func(ctx *gin.Context) { ctx.String(200, "OK") })
 
-	html, _ := fs.Sub(ui.Template, "template")
-	htmlTemplate := template.Must(template.New("").Funcs(funcMap).ParseFS(html, "*"))
-	r.SetHTMLTemplate(htmlTemplate)
+	templatePath := os.Getenv("ANSWER_TEMPLATE_PATH")
+	if templatePath != "" {
+		r.LoadHTMLGlob(templatePath)
+	} else {
+		html, _ := fs.Sub(ui.Template, "template")
+		htmlTemplate := template.Must(template.New("").Funcs(funcMap).ParseFS(html, "*"))
+		r.SetHTMLTemplate(htmlTemplate)
+	}
 	r.Use(middleware.HeadersByRequestURI())
 	viewRouter.Register(r, uiConf.BaseURL)
 
 	rootGroup := r.Group("")
 	swaggerRouter.Register(rootGroup)
 	static := r.Group(uiConf.APIBaseURL)
-	static.Use(avatarMiddleware.AvatarThumb(), authUserMiddleware.VisitAuth())
+	static.Use(authUserMiddleware.VisitAuth(), avatarMiddleware.AvatarThumb())
 	staticRouter.RegisterStaticRouter(static)
 
 	// The route must be available without logging in
@@ -101,5 +117,10 @@ func NewHTTPServer(debug bool,
 		agent.RegisterAuthAdminRouter(adminauthV1)
 		return nil
 	})
+
+	// mcp
+	mcpAPIGroup := r.Group(uiConf.APIBaseURL + "/answer/api/v1")
+	mcpAPIGroup.Use(authUserMiddleware.AuthMcpEnable(), authUserMiddleware.AuthAPIKey())
+	answerRouter.RegisterMCPRouter(mcpAPIGroup)
 	return r
 }

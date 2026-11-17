@@ -25,6 +25,7 @@ import (
 
 	"github.com/apache/answer/internal/base/data"
 	"github.com/apache/answer/internal/repo/search_sync"
+	"github.com/apache/answer/internal/repo/vector_search_sync"
 
 	"github.com/segmentfault/pacman/errors"
 	"github.com/segmentfault/pacman/log"
@@ -103,10 +104,17 @@ func (ps *PluginCommonService) UpdatePluginConfig(ctx context.Context, req *sche
 		}
 		return nil
 	})
+	_ = plugin.CallVectorSearch(func(vs plugin.VectorSearch) error {
+		if vs.Info().SlugName == req.PluginSlugName {
+			vs.RegisterSyncer(ctx, vector_search_sync.NewPluginSyncer(ps.data))
+		}
+		return nil
+	})
 	_ = plugin.CallImporter(func(importer plugin.Importer) error {
 		importer.RegisterImporterFunc(ctx, ps.importerService.NewImporterFunc())
 		return nil
 	})
+	ps.registerContentWriters(ctx) // ib: fork yaması
 	return nil
 }
 
@@ -144,7 +152,7 @@ func (ps *PluginCommonService) initPluginData() {
 	})
 
 	// init plugin status
-	pluginStatus, err := ps.configService.GetStringValue(context.TODO(), constant.PluginStatus)
+	pluginStatus, err := ps.configService.GetStringValueFromDB(context.TODO(), constant.PluginStatus)
 	if err != nil {
 		log.Error(err)
 	} else {
@@ -175,6 +183,14 @@ func (ps *PluginCommonService) initPluginData() {
 			return nil
 		})
 	}
+
+	ps.registerContentWriters(context.Background()) // ib: fork yaması
+
+	// register syncer for vector search plugins on startup
+	_ = plugin.CallVectorSearch(func(vs plugin.VectorSearch) error {
+		vs.RegisterSyncer(context.Background(), vector_search_sync.NewPluginSyncer(ps.data))
+		return nil
+	})
 
 	// init plugin user config
 	plugin.RegisterGetPluginUserConfigFunc(func(userID, pluginSlugName string) []byte {
@@ -215,4 +231,12 @@ func (ps *PluginCommonService) initPluginData() {
 			page++
 		}
 	}()
+}
+
+// registerContentWriters ib: fork yaması, bkz. plugin/content_writer.go.
+func (ps *PluginCommonService) registerContentWriters(ctx context.Context) {
+	_ = plugin.CallContentWriter(func(w plugin.ContentWriter) error {
+		w.RegisterContentFunc(ctx, ps.importerService.NewContentFunc())
+		return nil
+	})
 }

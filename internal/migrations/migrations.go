@@ -104,6 +104,13 @@ var migrations = []Migration{
 	NewMigration("v1.5.1", "add plugin kv storage", addPluginKVStorage, true),
 	NewMigration("v1.6.0", "move user config to interface", moveUserConfigToInterface, true),
 	NewMigration("v1.7.0", "add optional tags", addOptionalTags, true),
+	NewMigration("v1.7.2", "expand avatar column length", expandAvatarColumnLength, false),
+	NewMigration("v1.8.0", "change admin menu", updateAdminMenuSettings, true),
+	NewMigration("v1.8.1", "ai feat", aiFeat, true),
+	NewMigration("v2.0.1", "change avatar type to text", updateAvatarType, false),
+	NewMigration("v2.0.2", "add reasoning content to ai conversation record", addAIConversationReasoningContent, false),
+	NewMigration("v2.0.3", "add require email verification login setting", addRequireEmailVerification, true),
+	NewMigration("v2.0.4", "repair missing advanced site settings", repairAdvancedSiteInfo, true),
 }
 
 func GetMigrations() []Migration {

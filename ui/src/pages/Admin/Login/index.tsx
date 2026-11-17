@@ -47,6 +47,12 @@ const Index: FC = () => {
         description: t('email_registration.text'),
         default: true,
       },
+      require_email_verification: {
+        type: 'boolean',
+        title: t('email_verification.title'),
+        description: t('email_verification.text'),
+        default: true,
+      },
       allow_password_login: {
         type: 'boolean',
         title: t('password_login.title'),
@@ -57,12 +63,6 @@ const Index: FC = () => {
         type: 'string',
         title: t('allowed_email_domains.title'),
         description: t('allowed_email_domains.text'),
-      },
-      login_required: {
-        type: 'boolean',
-        title: t('private.title'),
-        description: t('private.text'),
-        default: false,
       },
     },
   };
@@ -79,6 +79,12 @@ const Index: FC = () => {
         label: t('email_registration.label'),
       },
     },
+    require_email_verification: {
+      'ui:widget': 'switch',
+      'ui:options': {
+        label: t('email_verification.label'),
+      },
+    },
     allow_password_login: {
       'ui:widget': 'switch',
       'ui:options': {
@@ -87,12 +93,6 @@ const Index: FC = () => {
     },
     allow_email_domains: {
       'ui:widget': 'textarea',
-    },
-    login_required: {
-      'ui:widget': 'switch',
-      'ui:options': {
-        label: t('private.label'),
-      },
     },
   };
   const [formData, setFormData] = useState(initFormData(schema));
@@ -116,8 +116,8 @@ const Index: FC = () => {
       allow_new_registrations: formData.allow_new_registrations.value,
       allow_email_registrations: formData.allow_email_registrations.value,
       allow_email_domains: allowedEmailDomains,
-      login_required: formData.login_required.value,
       allow_password_login: formData.allow_password_login.value,
+      require_email_verification: formData.require_email_verification.value,
     };
 
     putLoginSetting(reqParams)
@@ -151,8 +151,9 @@ const Index: FC = () => {
           formMeta.allow_email_domains.value =
             setting.allow_email_domains.join('\n');
         }
-        formMeta.login_required.value = setting.login_required;
         formMeta.allow_password_login.value = setting.allow_password_login;
+        formMeta.require_email_verification.value =
+          setting.require_email_verification;
         setFormData({ ...formMeta });
       }
     });
@@ -165,13 +166,15 @@ const Index: FC = () => {
   return (
     <>
       <h3 className="mb-4">{t('page_title')}</h3>
-      <SchemaForm
-        schema={schema}
-        formData={formData}
-        onSubmit={onSubmit}
-        uiSchema={uiSchema}
-        onChange={handleOnChange}
-      />
+      <div className="max-w-748">
+        <SchemaForm
+          schema={schema}
+          formData={formData}
+          onSubmit={onSubmit}
+          uiSchema={uiSchema}
+          onChange={handleOnChange}
+        />
+      </div>
     </>
   );
 };

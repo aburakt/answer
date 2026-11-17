@@ -20,9 +20,10 @@
 package report
 
 import (
+	"context"
 	"encoding/json"
 
-	"github.com/apache/answer/internal/service/event_queue"
+	"github.com/apache/answer/internal/service/eventqueue"
 
 	"github.com/apache/answer/internal/base/constant"
 	"github.com/apache/answer/internal/base/handler"
@@ -44,7 +45,6 @@ import (
 	"github.com/jinzhu/copier"
 	"github.com/segmentfault/pacman/errors"
 	"github.com/segmentfault/pacman/log"
-	"golang.org/x/net/context"
 )
 
 // ReportService user service
@@ -57,7 +57,7 @@ type ReportService struct {
 	commentCommonRepo comment_common.CommentCommonRepo
 	reportHandle      *report_handle.ReportHandle
 	configService     *config.ConfigService
-	eventQueueService event_queue.EventQueueService
+	eventQueueService eventqueue.Service
 }
 
 // NewReportService new report service
@@ -70,7 +70,7 @@ func NewReportService(
 	commentCommonRepo comment_common.CommentCommonRepo,
 	reportHandle *report_handle.ReportHandle,
 	configService *config.ConfigService,
-	eventQueueService event_queue.EventQueueService,
+	eventQueueService eventqueue.Service,
 ) *ReportService {
 	return &ReportService{
 		reportRepo:        reportRepo,
@@ -98,6 +98,9 @@ func (rs *ReportService) AddReport(ctx context.Context, req *schema.AddReportReq
 	}
 	if objInfo.IsDeleted() {
 		return errors.BadRequest(reason.NewObjectAlreadyDeleted)
+	}
+	if err := objInfo.CheckVisibility(req.UserID, req.IsAdminModerator); err != nil {
+		return err
 	}
 
 	cf, err := rs.configService.GetConfigByID(ctx, req.ReportType)

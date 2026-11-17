@@ -24,7 +24,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/apache/answer/internal/service/event_queue"
+	"github.com/apache/answer/internal/service/eventqueue"
 
 	"github.com/apache/answer/internal/base/constant"
 	"github.com/apache/answer/internal/base/handler"
@@ -62,7 +62,7 @@ type VoteService struct {
 	answerRepo        answercommon.AnswerRepo
 	commentCommonRepo comment_common.CommentCommonRepo
 	objectService     *object_info.ObjService
-	eventQueueService event_queue.EventQueueService
+	eventQueueService eventqueue.Service
 }
 
 func NewVoteService(
@@ -72,7 +72,7 @@ func NewVoteService(
 	answerRepo answercommon.AnswerRepo,
 	commentCommonRepo comment_common.CommentCommonRepo,
 	objectService *object_info.ObjService,
-	eventQueueService event_queue.EventQueueService,
+	eventQueueService eventqueue.Service,
 ) *VoteService {
 	return &VoteService{
 		voteRepo:          voteRepo,
@@ -93,6 +93,9 @@ func (vs *VoteService) VoteUp(ctx context.Context, req *schema.VoteReq) (resp *s
 	}
 	if objectInfo.IsDeleted() {
 		return nil, errors.BadRequest(reason.NewObjectAlreadyDeleted)
+	}
+	if err := objectInfo.CheckVisibility(req.UserID, req.IsAdminModerator); err != nil {
+		return nil, err
 	}
 	// make object id must be decoded
 	objectInfo.ObjectID = req.ObjectID
@@ -144,6 +147,9 @@ func (vs *VoteService) VoteDown(ctx context.Context, req *schema.VoteReq) (resp 
 	}
 	if objectInfo.IsDeleted() {
 		return nil, errors.BadRequest(reason.NewObjectAlreadyDeleted)
+	}
+	if err := objectInfo.CheckVisibility(req.UserID, req.IsAdminModerator); err != nil {
+		return nil, err
 	}
 	// make object id must be decoded
 	objectInfo.ObjectID = req.ObjectID

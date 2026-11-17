@@ -29,13 +29,14 @@ import (
 	"github.com/apache/answer/internal/schema"
 	answercommon "github.com/apache/answer/internal/service/answer_common"
 	commentcommon "github.com/apache/answer/internal/service/comment_common"
-	"github.com/apache/answer/internal/service/notice_queue"
+	"github.com/apache/answer/internal/service/noticequeue"
 	"github.com/apache/answer/internal/service/object_info"
 	questioncommon "github.com/apache/answer/internal/service/question_common"
 	"github.com/apache/answer/internal/service/role"
 	"github.com/apache/answer/internal/service/siteinfo_common"
 	tagcommon "github.com/apache/answer/internal/service/tag_common"
 	usercommon "github.com/apache/answer/internal/service/user_common"
+	"github.com/apache/answer/internal/service/vector_sync"
 	"github.com/apache/answer/pkg/htmltext"
 	"github.com/apache/answer/pkg/token"
 	"github.com/apache/answer/pkg/uid"
@@ -66,10 +67,11 @@ type ReviewService struct {
 	userRoleService                  *role.UserRoleRelService
 	tagCommon                        *tagcommon.TagCommonService
 	questionCommon                   *questioncommon.QuestionCommon
-	externalNotificationQueueService notice_queue.ExternalNotificationQueueService
-	notificationQueueService         notice_queue.NotificationQueueService
+	externalNotificationQueueService noticequeue.ExternalService
+	notificationQueueService         noticequeue.Service
 	siteInfoService                  siteinfo_common.SiteInfoCommonService
 	commentCommonRepo                commentcommon.CommentCommonRepo
+	vectorSyncService                vector_sync.Service
 }
 
 // NewReviewService new review service
@@ -81,12 +83,13 @@ func NewReviewService(
 	questionRepo questioncommon.QuestionRepo,
 	answerRepo answercommon.AnswerRepo,
 	userRoleService *role.UserRoleRelService,
-	externalNotificationQueueService notice_queue.ExternalNotificationQueueService,
+	externalNotificationQueueService noticequeue.ExternalService,
 	tagCommon *tagcommon.TagCommonService,
 	questionCommon *questioncommon.QuestionCommon,
-	notificationQueueService notice_queue.NotificationQueueService,
+	notificationQueueService noticequeue.Service,
 	siteInfoService siteinfo_common.SiteInfoCommonService,
 	commentCommonRepo commentcommon.CommentCommonRepo,
+	vectorSyncService vector_sync.Service,
 ) *ReviewService {
 	return &ReviewService{
 		reviewRepo:                       reviewRepo,
@@ -102,6 +105,7 @@ func NewReviewService(
 		notificationQueueService:         notificationQueueService,
 		siteInfoService:                  siteInfoService,
 		commentCommonRepo:                commentCommonRepo,
+		vectorSyncService:                vectorSyncService,
 	}
 }
 
@@ -290,6 +294,9 @@ func (cs *ReviewService) updateObjectStatus(ctx context.Context, review *entity.
 			}
 			cs.externalNotificationQueueService.Send(ctx,
 				schema.CreateNewQuestionNotificationMsg(questionInfo.ID, questionInfo.Title, questionInfo.UserID, tags))
+			cs.vectorSyncService.Send(ctx, &vector_sync.Task{Action: vector_sync.ActionUpsert, ObjectType: vector_sync.ObjectTypeQuestion, ObjectID: questionInfo.ID})
+		} else {
+			cs.vectorSyncService.Send(ctx, &vector_sync.Task{Action: vector_sync.ActionDelete, ObjectType: vector_sync.ObjectTypeQuestion, ObjectID: questionInfo.ID})
 		}
 		userQuestionCount, err := cs.questionRepo.GetUserQuestionCount(ctx, questionInfo.UserID, 0)
 		if err != nil {
@@ -326,7 +333,11 @@ func (cs *ReviewService) updateObjectStatus(ctx context.Context, review *entity.
 		if isApprove {
 			cs.notificationAnswerTheQuestion(ctx, questionInfo.UserID, questionInfo.ID, answerInfo.ID,
 				answerInfo.UserID, questionInfo.Title, answerInfo.OriginalText)
+			cs.vectorSyncService.Send(ctx, &vector_sync.Task{Action: vector_sync.ActionUpsert, ObjectType: vector_sync.ObjectTypeAnswer, ObjectID: answerInfo.ID})
+		} else {
+			cs.vectorSyncService.Send(ctx, &vector_sync.Task{Action: vector_sync.ActionDelete, ObjectType: vector_sync.ObjectTypeAnswer, ObjectID: answerInfo.ID})
 		}
+		cs.vectorSyncService.Send(ctx, &vector_sync.Task{Action: vector_sync.ActionUpsert, ObjectType: vector_sync.ObjectTypeQuestion, ObjectID: answerInfo.QuestionID})
 		if err := cs.questionCommon.UpdateAnswerCount(ctx, answerInfo.QuestionID); err != nil {
 			log.Errorf("update question answer count failed, err: %v", err)
 		}
@@ -367,6 +378,12 @@ func (cs *ReviewService) updateObjectStatus(ctx context.Context, review *entity.
 		}
 		if isApprove {
 			cs.notificationCommentOnTheQuestion(ctx, commentInfo)
+		}
+		if commentInfo.ObjectID == commentInfo.QuestionID {
+			cs.vectorSyncService.Send(ctx, &vector_sync.Task{Action: vector_sync.ActionUpsert, ObjectType: vector_sync.ObjectTypeQuestion, ObjectID: commentInfo.QuestionID})
+		} else {
+			cs.vectorSyncService.Send(ctx, &vector_sync.Task{Action: vector_sync.ActionUpsert, ObjectType: vector_sync.ObjectTypeAnswer, ObjectID: commentInfo.ObjectID})
+			cs.vectorSyncService.Send(ctx, &vector_sync.Task{Action: vector_sync.ActionUpsert, ObjectType: vector_sync.ObjectTypeQuestion, ObjectID: commentInfo.QuestionID})
 		}
 	}
 	return

@@ -32,9 +32,9 @@ import (
 	"github.com/apache/answer/internal/entity"
 	"github.com/apache/answer/internal/schema"
 	"github.com/apache/answer/internal/service/activity"
-	"github.com/apache/answer/internal/service/activity_queue"
+	"github.com/apache/answer/internal/service/activityqueue"
 	answercommon "github.com/apache/answer/internal/service/answer_common"
-	"github.com/apache/answer/internal/service/notice_queue"
+	"github.com/apache/answer/internal/service/noticequeue"
 	"github.com/apache/answer/internal/service/object_info"
 	questioncommon "github.com/apache/answer/internal/service/question_common"
 	"github.com/apache/answer/internal/service/report_common"
@@ -62,8 +62,8 @@ type RevisionService struct {
 	answerRepo               answercommon.AnswerRepo
 	tagRepo                  tag_common.TagRepo
 	tagCommon                *tag_common.TagCommonService
-	notificationQueueService notice_queue.NotificationQueueService
-	activityQueueService     activity_queue.ActivityQueueService
+	notificationQueueService noticequeue.Service
+	activityQueueService     activityqueue.Service
 	reportRepo               report_common.ReportRepo
 	reviewService            *review.ReviewService
 	reviewActivity           activity.ReviewActivityRepo
@@ -79,8 +79,8 @@ func NewRevisionService(
 	answerRepo answercommon.AnswerRepo,
 	tagRepo tag_common.TagRepo,
 	tagCommon *tag_common.TagCommonService,
-	notificationQueueService notice_queue.NotificationQueueService,
-	activityQueueService activity_queue.ActivityQueueService,
+	notificationQueueService noticequeue.Service,
+	activityQueueService activityqueue.Service,
 	reportRepo report_common.ReportRepo,
 	reviewService *review.ReviewService,
 	reviewActivity activity.ReviewActivityRepo,
@@ -114,14 +114,20 @@ func (rs *RevisionService) RevisionAudit(ctx context.Context, req *schema.Revisi
 	if revisioninfo.Status != entity.RevisionUnreviewedStatus {
 		return
 	}
+	objectType, objectTypeerr := obj.GetObjectTypeStrByObjectID(revisioninfo.ObjectID)
+	if objectTypeerr != nil {
+		return objectTypeerr
+	}
 	if req.Operation == schema.RevisionAuditReject {
+		if err = checkRevisionAuditPermission(req, objectType); err != nil {
+			return err
+		}
 		err = rs.revisionRepo.UpdateStatus(ctx, req.ID, entity.RevisionReviewRejectStatus, req.UserID)
 		return
 	}
 	if req.Operation == schema.RevisionAuditApprove {
-		objectType, objectTypeerr := obj.GetObjectTypeStrByObjectID(revisioninfo.ObjectID)
-		if objectTypeerr != nil {
-			return objectTypeerr
+		if err = checkRevisionAuditPermission(req, objectType); err != nil {
+			return err
 		}
 		revisionitem := &schema.GetRevisionResp{}
 		_ = copier.Copy(revisionitem, revisioninfo)
@@ -129,23 +135,11 @@ func (rs *RevisionService) RevisionAudit(ctx context.Context, req *schema.Revisi
 		var saveErr error
 		switch objectType {
 		case constant.QuestionObjectType:
-			if !req.CanReviewQuestion {
-				saveErr = errors.BadRequest(reason.RevisionNoPermission)
-			} else {
-				saveErr = rs.revisionAuditQuestion(ctx, revisionitem)
-			}
+			saveErr = rs.revisionAuditQuestion(ctx, revisionitem)
 		case constant.AnswerObjectType:
-			if !req.CanReviewAnswer {
-				saveErr = errors.BadRequest(reason.RevisionNoPermission)
-			} else {
-				saveErr = rs.revisionAuditAnswer(ctx, revisionitem)
-			}
+			saveErr = rs.revisionAuditAnswer(ctx, revisionitem)
 		case constant.TagObjectType:
-			if !req.CanReviewTag {
-				saveErr = errors.BadRequest(reason.RevisionNoPermission)
-			} else {
-				saveErr = rs.revisionAuditTag(ctx, revisionitem)
-			}
+			saveErr = rs.revisionAuditTag(ctx, revisionitem)
 		}
 		if saveErr != nil {
 			return saveErr
@@ -176,6 +170,24 @@ func (rs *RevisionService) RevisionAudit(ctx context.Context, req *schema.Revisi
 		return
 	}
 
+	return nil
+}
+
+func checkRevisionAuditPermission(req *schema.RevisionAuditReq, objectType string) error {
+	switch objectType {
+	case constant.QuestionObjectType:
+		if !req.CanReviewQuestion {
+			return errors.BadRequest(reason.RevisionNoPermission)
+		}
+	case constant.AnswerObjectType:
+		if !req.CanReviewAnswer {
+			return errors.BadRequest(reason.RevisionNoPermission)
+		}
+	case constant.TagObjectType:
+		if !req.CanReviewTag {
+			return errors.BadRequest(reason.RevisionNoPermission)
+		}
+	}
 	return nil
 }
 
@@ -388,6 +400,14 @@ func (rs *RevisionService) GetRevisionList(ctx context.Context, req *schema.GetR
 	)
 
 	resp = []schema.GetRevisionResp{}
+	objInfo, infoErr := rs.objectInfoService.GetInfo(ctx, req.ObjectID)
+	if infoErr != nil {
+		return nil, infoErr
+	}
+	if err := objInfo.CheckVisibility(req.UserID, req.IsAdmin); err != nil {
+		return nil, err
+	}
+
 	_ = copier.Copy(&rev, req)
 
 	revs, err = rs.revisionRepo.GetRevisionList(ctx, &rev)

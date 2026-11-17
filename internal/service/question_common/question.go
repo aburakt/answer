@@ -34,7 +34,7 @@ import (
 	"github.com/apache/answer/internal/base/handler"
 	"github.com/apache/answer/internal/base/reason"
 	"github.com/apache/answer/internal/service/activity_common"
-	"github.com/apache/answer/internal/service/activity_queue"
+	"github.com/apache/answer/internal/service/activityqueue"
 	"github.com/apache/answer/internal/service/config"
 	metacommon "github.com/apache/answer/internal/service/meta_common"
 	"github.com/apache/answer/internal/service/revision"
@@ -88,7 +88,7 @@ type QuestionRepo interface {
 	RemoveQuestionLink(ctx context.Context, link ...*entity.QuestionLink) (err error)
 	RecoverQuestionLink(ctx context.Context, link ...*entity.QuestionLink) (err error)
 	UpdateQuestionLinkStatus(ctx context.Context, status int, links ...*entity.QuestionLink) (err error)
-	GetQuestionLink(ctx context.Context, page, pageSize int, questionID string, orderCond string, inDays int) (questions []*entity.Question, total int64, err error)
+	GetQuestionLink(ctx context.Context, page, pageSize int, questionID, loginUserID string, isAdminModerator bool, orderCond string, inDays int) (questions []*entity.Question, total int64, err error)
 }
 
 // QuestionCommon user service
@@ -103,7 +103,7 @@ type QuestionCommon struct {
 	AnswerCommon         *answercommon.AnswerCommon
 	metaCommonService    *metacommon.MetaCommonService
 	configService        *config.ConfigService
-	activityQueueService activity_queue.ActivityQueueService
+	activityQueueService activityqueue.Service
 	revisionRepo         revision.RevisionRepo
 	siteInfoService      siteinfo_common.SiteInfoCommonService
 	data                 *data.Data
@@ -119,7 +119,7 @@ func NewQuestionCommon(questionRepo QuestionRepo,
 	answerCommon *answercommon.AnswerCommon,
 	metaCommonService *metacommon.MetaCommonService,
 	configService *config.ConfigService,
-	activityQueueService activity_queue.ActivityQueueService,
+	activityQueueService activityqueue.Service,
 	revisionRepo revision.RevisionRepo,
 	siteInfoService siteinfo_common.SiteInfoCommonService,
 	data *data.Data,
@@ -900,7 +900,7 @@ func (qs *QuestionCommon) tryToGetQuestionIDFromMsg(ctx context.Context, closeMs
 }
 
 func (qs *QuestionCommon) GetMinimumContentLength(ctx context.Context) (int, error) {
-	siteInfo, err := qs.siteInfoService.GetSiteWrite(ctx)
+	siteInfo, err := qs.siteInfoService.GetSiteQuestion(ctx)
 	if err != nil {
 		return 6, err
 	}

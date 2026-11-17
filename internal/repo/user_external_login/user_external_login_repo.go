@@ -22,6 +22,7 @@ package user_external_login
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/apache/answer/internal/base/constant"
 	"github.com/apache/answer/internal/base/data"
@@ -87,7 +88,7 @@ func (ur *userExternalLoginRepo) GetByUserID(ctx context.Context, provider, user
 func (ur *userExternalLoginRepo) GetUserExternalLoginList(ctx context.Context, userID string) (
 	resp []*entity.UserExternalLogin, err error) {
 	resp = make([]*entity.UserExternalLogin, 0)
-	err = ur.data.DB.Context(ctx).Where("user_id = ?", userID).Find(&resp)
+	err = ur.data.DB.Context(ctx).Where("user_id = ?", userID).OrderBy("updated_at DESC").Find(&resp)
 	if err != nil {
 		err = errors.InternalServer(reason.DatabaseError).WithError(err).WithStack()
 	}
@@ -135,4 +136,29 @@ func (ur *userExternalLoginRepo) GetCacheUserExternalLoginInfo(
 	info = &schema.ExternalLoginUserInfoCache{}
 	_ = json.Unmarshal([]byte(res), &info)
 	return info, nil
+}
+
+func (ur *userExternalLoginRepo) SetCacheOAuthState(
+	ctx context.Context, state string, info *schema.ExternalLoginOAuthState, duration time.Duration) (err error) {
+	cacheData, _ := json.Marshal(info)
+	return ur.data.Cache.SetString(ctx, constant.ConnectorOAuthStateCacheKey+state,
+		string(cacheData), duration)
+}
+
+func (ur *userExternalLoginRepo) GetCacheOAuthState(
+	ctx context.Context, state string) (info *schema.ExternalLoginOAuthState, err error) {
+	res, exist, err := ur.data.Cache.GetString(ctx, constant.ConnectorOAuthStateCacheKey+state)
+	if err != nil {
+		return info, err
+	}
+	if !exist {
+		return nil, nil
+	}
+	info = &schema.ExternalLoginOAuthState{}
+	_ = json.Unmarshal([]byte(res), &info)
+	return info, nil
+}
+
+func (ur *userExternalLoginRepo) DeleteCacheOAuthState(ctx context.Context, state string) (err error) {
+	return ur.data.Cache.Del(ctx, constant.ConnectorOAuthStateCacheKey+state)
 }

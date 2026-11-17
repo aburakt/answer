@@ -28,7 +28,6 @@ import (
 	"github.com/apache/answer/internal/base/translator"
 	"github.com/apache/answer/internal/schema"
 	"github.com/apache/answer/pkg/display"
-	"github.com/apache/answer/pkg/token"
 	"github.com/apache/answer/plugin"
 	"github.com/jinzhu/copier"
 	"github.com/segmentfault/pacman/i18n"
@@ -50,25 +49,42 @@ func (ns *ExternalNotificationService) handleNewQuestionNotification(ctx context
 	}
 	log.Debugf("get subscribers %d for question %s", len(subscribers), msg.NewQuestionTemplateRawData.QuestionID)
 
+	ns.syncNewQuestionNotificationToPlugin(ctx, msg)
+	ns.enqueueNewQuestionNotificationEmails(subscribers, msg.NewQuestionTemplateRawData)
+	return nil
+}
+
+func (ns *ExternalNotificationService) enqueueNewQuestionNotificationEmails(
+	subscribers []*NewQuestionSubscriber,
+	rawData *schema.NewQuestionTemplateRawData,
+) {
+	task := newQuestionEmailTaskFromRawData(collectNewQuestionNotificationEmailUserIDs(subscribers), rawData)
+	if len(task.UserIDs) == 0 {
+		return
+	}
+	if ns.newQuestionEmailWorker == nil {
+		log.Warnf("[new_question_email] worker is nil, dropping task for question %s", task.QuestionID)
+		return
+	}
+	if !ns.newQuestionEmailWorker.TryEnqueue(task) {
+		log.Warnf("[new_question_email] failed to enqueue task for question %s", task.QuestionID)
+	}
+}
+
+func collectNewQuestionNotificationEmailUserIDs(subscribers []*NewQuestionSubscriber) []string {
+	userIDs := make([]string, 0, len(subscribers))
 	for _, subscriber := range subscribers {
+		if subscriber == nil {
+			continue
+		}
 		for _, channel := range subscriber.Channels {
-			if !channel.Enable {
+			if channel == nil || !channel.Enable || channel.Key != constant.EmailChannel {
 				continue
 			}
-			if channel.Key == constant.EmailChannel {
-				ns.sendNewQuestionNotificationEmail(ctx, subscriber.UserID, &schema.NewQuestionTemplateRawData{
-					QuestionTitle:   msg.NewQuestionTemplateRawData.QuestionTitle,
-					QuestionID:      msg.NewQuestionTemplateRawData.QuestionID,
-					UnsubscribeCode: token.GenerateToken(),
-					Tags:            msg.NewQuestionTemplateRawData.Tags,
-					TagIDs:          msg.NewQuestionTemplateRawData.TagIDs,
-				})
-			}
+			userIDs = append(userIDs, subscriber.UserID)
 		}
 	}
-
-	ns.syncNewQuestionNotificationToPlugin(ctx, msg)
-	return nil
+	return userIDs
 }
 
 func (ns *ExternalNotificationService) getNewQuestionSubscribers(ctx context.Context, msg *schema.ExternalNotificationMsg) (
@@ -238,6 +254,19 @@ func (ns *ExternalNotificationService) syncNewQuestionNotificationToPlugin(ctx c
 				}
 			}
 
+			// Get all external logins as fallback
+			externalLogins, err := ns.userExternalLoginRepo.GetUserExternalLoginList(ctx, subscriberUserID)
+			if err != nil {
+				log.Errorf("get user external login list failed for user %s: %v", subscriberUserID, err)
+			} else if len(externalLogins) > 0 {
+				newMsg.ReceiverExternalID = externalLogins[0].ExternalID
+				if len(externalLogins) > 1 {
+					log.Debugf("user %s has %d SSO logins, using most recent: provider=%s",
+						subscriberUserID, len(externalLogins), externalLogins[0].Provider)
+				}
+			}
+
+			// Try to get external login specific to this plugin (takes precedence over fallback)
 			userInfo, exist, err := ns.userExternalLoginRepo.GetByUserID(ctx, fn.Info().SlugName, subscriberUserID)
 			if err != nil {
 				log.Errorf("get user external login info failed: %v", err)
