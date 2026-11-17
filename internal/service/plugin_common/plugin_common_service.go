@@ -114,6 +114,7 @@ func (ps *PluginCommonService) UpdatePluginConfig(ctx context.Context, req *sche
 		importer.RegisterImporterFunc(ctx, ps.importerService.NewImporterFunc())
 		return nil
 	})
+	ps.registerContentWriters(ctx) // ib: fork yaması
 	return nil
 }
 
@@ -183,6 +184,8 @@ func (ps *PluginCommonService) initPluginData() {
 		})
 	}
 
+	ps.registerContentWriters(context.Background()) // ib: fork yaması
+
 	// register syncer for vector search plugins on startup
 	_ = plugin.CallVectorSearch(func(vs plugin.VectorSearch) error {
 		vs.RegisterSyncer(context.Background(), vector_search_sync.NewPluginSyncer(ps.data))
@@ -228,4 +231,12 @@ func (ps *PluginCommonService) initPluginData() {
 			page++
 		}
 	}()
+}
+
+// registerContentWriters ib: fork yaması, bkz. plugin/content_writer.go.
+func (ps *PluginCommonService) registerContentWriters(ctx context.Context) {
+	_ = plugin.CallContentWriter(func(w plugin.ContentWriter) error {
+		w.RegisterContentFunc(ctx, ps.importerService.NewContentFunc())
+		return nil
+	})
 }
