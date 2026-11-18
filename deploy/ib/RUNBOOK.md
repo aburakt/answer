@@ -1,7 +1,7 @@
 # Answer 1.6.0 → 2.0.3 geçiş runbook'u (intranet)
 
-Kurulum: Answer Docker'da, PostgreSQL sunucunun kendisinde. Giriş Keycloak'tan
-YAPI'deki SSO modülüne geçer (kaynak giris reposu `sso/`, belge: giris `/ldap-config`).
+Kurulum: Answer Docker'da, PostgreSQL sunucunun kendisinde. Giriş yolu
+(Keycloak yerine ne geleceği) ayrıca netleşecek; bu runbook yalnız sürüm geçişini kapsar.
 
 ## Provada denenenler (17 Kasım 2026)
 
@@ -14,7 +14,6 @@ Yerel PostgreSQL 16 üzerinde, 1.6.0 kurulumu + Keycloak biçiminde üç kullan�
 | `pg_dump -Fc` yedeği | tamam |
 | `answer upgrade` (2.0.3) | 28 → 36, 8 migration, hata yok, 0,1 sn |
 | `site_info` diff'i | ayarlar yeni anahtarlara bölündü; eklenenler aşağıda |
-| `sql/10-keycloak-to-giris.sql` | 2 satır sicile çevrildi, 1 satır zaten sicil; ikinci çalıştırmada değişiklik yok |
 | `sql/20-site-settings.sql` | e-posta doğrulama zorunluluğu kapandı, avatar `system` |
 | `answer run` + `/answer/api/v1/siteinfo` | 200 |
 | `pg_restore` ile geri dönüş | `version` = 28, eski kayıtlar geri geldi |
@@ -49,16 +48,11 @@ yeni imaj `docker compose up` ile değil, adım adım başlatılır.
      -v answer-data:/data --entrypoint answer ib/answer:2.0.3-ib.1 upgrade -C /data
    ```
 5. **Ayarları kontrol et.** `site_info` yeniden alınıp 2. adımdaki dökümle karşılaştırılır.
-6. **Kimlik eşleme.** `psql -v ON_ERROR_STOP=1 -U answer -f sql/10-keycloak-to-giris.sql`
-   İlk iki sorgu satır döndürürse dur: o kullanıcılar elle çözülür.
-7. **Ayarlar.** `psql -v ON_ERROR_STOP=1 -U answer -f sql/20-site-settings.sql`
-8. **Başlat.** `docker compose up -d`
-9. **Connector'ı köprüye çevir.** Admin > Eklentiler > OAuth2 Temel: adresler
-   giris `/ldap-config` sayfasındaki Answer tarifine göre, `User ID JSON path = sub`.
-   Bir kullanıcıyla giriş yapıp kendi eski hesabına (itibarı, soruları) düştüğü doğrulanır.
-10. **Şifreli girişi kapat.** Ancak 9. adım doğrulandıktan sonra: Admin > Giriş >
-    şifreli giriş ve yeni kayıt kapalı.
-11. **Hook kaynakları.** Admin > Eklentiler > Hook geçidi açılır, kaynaklar girilir,
+6. **Ayarlar.** `psql -v ON_ERROR_STOP=1 -U answer -f sql/20-site-settings.sql`
+7. **Başlat.** `docker compose up -d`
+8. **Giriş kontrolü.** Mevcut connector ile bir kullanıcı giriş yapar ve kendi
+   eski hesabına (itibarı, soruları) düştüğü doğrulanır.
+9. **Hook kaynakları.** Admin > Eklentiler > Hook geçidi açılır, kaynaklar girilir,
     `ANSWER_HOOK_SECRET_<ID>` değerleri `.env`'e konur, `docker compose up -d`.
 
 ## Kilitlenirsen
