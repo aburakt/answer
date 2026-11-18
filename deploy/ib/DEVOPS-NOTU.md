@@ -1,7 +1,7 @@
 # DevOps için not: Answer 2.0.3 geçişi
 
-Merhaba. Intranetteki Answer'ı 1.6.0'dan 2.0.3'e taşıyoruz. Giriş yolu
-(Keycloak yerine ne geleceği) ayrıca netleşecek. Geçişin adımları `RUNBOOK.md`'de. 1.6.0'ı sen kurduğun için
+Merhaba. Intranetteki Answer'ı 1.6.0'dan 2.0.3'e taşıyoruz. Giriş Keycloak'tan
+doğrudan intranet LDAP'ına geçiyor (Answer'ın LDAP plugin'i). Geçişin adımları `RUNBOOK.md`'de. 1.6.0'ı sen kurduğun için
 aşağıdakiler yalnız sende var. Soru olursa Burak'a yaz.
 
 **Sır göndermeyin.** Parola, client secret ya da DSN'deki parola gibi değerler bu
@@ -32,6 +32,14 @@ nota yazılmaz. Yalnız adları ve sunucuda nerede durdukları lazım.
       `SELECT provider, external_id, left(meta_info, 300) FROM user_external_login LIMIT 3;`
 - [ ] Keycloak dışında şifreyle giren hesap var mı (ör. admin)? Admin'e acil durumda nasıl girileceği
       RUNBOOK'ta "Kilitlenirsen" bölümünde yazıyor.
+
+### 1.2.1 LDAP
+
+- [ ] LDAP sunucu adresi ve portu (LDAPS mı, StartTLS mi?), Base DN.
+- [ ] Salt okunur bir bind hesabı (DN'i yeterli, parolayı nota yazma).
+- [ ] Sicil hangi alanda (`sAMAccountName`, `uid`, ...)? Kullanıcılarda `mail`
+      alanı dolu mu?
+- [ ] İç CA kullanılıyorsa CA sertifikası (açık anahtar, sır değil).
 
 ### 1.3 1.6.0'a yaptığın özelleştirmeler
 
@@ -67,7 +75,8 @@ değişikliği. Kod değiştiysen dosyanın kendisini de gönder.
   alınır, sunucuda `docker load` edilir.
 - `docker-compose.yaml` ve `.env.example`: PostgreSQL host'ta kalır,
   `host-gateway` ile erişilir.
-- `sql/20-site-settings.sql`. İki kez çalıştırılırsa sorun çıkarmaz.
+- `sql/10-keycloak-to-ldap.sql` ve `sql/20-site-settings.sql`. İkisi de iki kez
+  çalıştırılırsa sorun çıkarmaz.
 - `RUNBOOK.md`: yedek, upgrade, smoke test ve geri dönüş adımları.
 
 ## 3. Geçiş günü senden beklenen

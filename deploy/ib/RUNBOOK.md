@@ -1,7 +1,8 @@
 # Answer 1.6.0 → 2.0.3 geçiş runbook'u (intranet)
 
-Kurulum: Answer Docker'da, PostgreSQL sunucunun kendisinde. Giriş yolu
-(Keycloak yerine ne geleceği) ayrıca netleşecek; bu runbook yalnız sürüm geçişini kapsar.
+Kurulum: Answer Docker'da, PostgreSQL sunucunun kendisinde. Giriş Keycloak'tan
+intranet LDAP'ına geçer: upstream `connector-ldap` plugin'i, Answer'ın kendi login
+ekranında sicil ve şifre sorar, doğrudan LDAP'a doğrulatır.
 
 ## Provada denenenler (17 Kasım 2026)
 
@@ -14,6 +15,7 @@ Yerel PostgreSQL 16 üzerinde, 1.6.0 kurulumu + Keycloak biçiminde üç kullan�
 | `pg_dump -Fc` yedeği | tamam |
 | `answer upgrade` (2.0.3) | 28 → 36, 8 migration, hata yok, 0,1 sn |
 | `site_info` diff'i | ayarlar yeni anahtarlara bölündü; eklenenler aşağıda |
+| `sql/10-keycloak-to-ldap.sql` | 3 Keycloak hesabına sicilli `ldap` satırı eklendi; ikinci çalıştırmada yeni satır yok (PostgreSQL 16, 18 Kasım) |
 | `sql/20-site-settings.sql` | e-posta doğrulama zorunluluğu kapandı, avatar `system` |
 | `answer run` + `/answer/api/v1/siteinfo` | 200 |
 | `pg_restore` ile geri dönüş | `version` = 28, eski kayıtlar geri geldi |
@@ -48,12 +50,36 @@ yeni imaj `docker compose up` ile değil, adım adım başlatılır.
      -v answer-data:/data --entrypoint answer ib/answer:2.0.3-ib.1 upgrade -C /data
    ```
 5. **Ayarları kontrol et.** `site_info` yeniden alınıp 2. adımdaki dökümle karşılaştırılır.
-6. **Ayarlar.** `psql -v ON_ERROR_STOP=1 -U answer -f sql/20-site-settings.sql`
-7. **Başlat.** `docker compose up -d`
-8. **Giriş kontrolü.** Mevcut connector ile bir kullanıcı giriş yapar ve kendi
-   eski hesabına (itibarı, soruları) düştüğü doğrulanır.
-9. **Hook kaynakları.** Admin > Eklentiler > Hook geçidi açılır, kaynaklar girilir,
+6. **Kimlik eşleme.** `psql -v ON_ERROR_STOP=1 -U answer -f sql/10-keycloak-to-ldap.sql`
+   İlk iki sorgu satır döndürürse dur: o kullanıcılar elle çözülür.
+7. **Ayarlar.** `psql -v ON_ERROR_STOP=1 -U answer -f sql/20-site-settings.sql`
+8. **Başlat.** `docker compose up -d`
+9. **LDAP connector'ı aç.** Admin > Eklentiler > LDAP connector:
+   - `Server`: `ldaps://<ldap-sunucusu>:636` (ya da `ldap://...:389`, StartTLS ile)
+   - `Base DN`, `Bind DN` ve `Bind Password`: salt okunur bir servis hesabı. Parola
+     yalnız admin ekranına girilir, hiçbir dosyaya yazılmaz.
+   - `User Attribute` ve `External ID Attribute`: sicili veren alan
+     (Active Directory'de genelde `sAMAccountName`).
+   - İç CA kullanılıyorsa `TLS CA Certificate Path` (dosya `/data` altına konur).
+   Bir kullanıcıyla giriş yapılır; kendi eski hesabına (itibarı, soruları) düştüğü
+   doğrulanır.
+10. **Keycloak'ı kapat.** 9. adım doğrulandıktan sonra Admin > Eklentiler > OAuth2
+    Temel kapatılır, şifreli giriş kapatılır. LDAP'tan ilk kez gelen kullanıcının
+    hesabı ilk girişte kendiliğinden açılır.
+11. **Bot hesabı.** Kılavuz konularını açan hesap (ör. `kilavuz-bot@egmidb.gov.tr`)
+    Admin > Kullanıcılar'dan yerel hesap olarak açılır; LDAP'ta olması gerekmez,
+    login olmaz.
+12. **Hook kaynakları.** Admin > Eklentiler > Hook geçidi açılır, kaynaklar girilir,
     `ANSWER_HOOK_SECRET_<ID>` değerleri `.env`'e konur, `docker compose up -d`.
+
+## LDAP girişinde dikkat
+
+- LDAP'ta her kullanıcının `mail` alanı dolu olmalı; boşsa giriş "email is required"
+  ile düşer.
+- Plugin login formunu `Origin`/`Referer` başlığıyla doğrular: nginx `Host`'u
+  korumalı, Admin > Genel'deki site adresi `https://forum.egmidb.gov.tr` olmalı.
+- `connector-ldap` henüz release almadı; `plugin_list`'te commit'e sabitli.
+- Geri dönüş: OAuth2 Temel yeniden açılır, `basic` satırları yerinde duruyor.
 
 ## Kilitlenirsen
 
@@ -83,7 +109,7 @@ docker compose -f deploy/ib/docker-compose.yaml build
 docker save ib/answer:2.0.3-ib.1 | gzip > ib-answer-2.0.3-ib.1.tar.gz
 ```
 
-`script/plugin_list` connector-basic, reviewer-basic, captcha-basic, quick-links ve
+`script/plugin_list` connector-basic, connector-ldap, reviewer-basic, captcha-basic, quick-links ve
 `plugins/ib-hook`'u içerir. Build internet ister (Go ve npm modülleri); bu yüzden
 VPS'te yapılır, sunucuya yalnız imaj gider.
 
