@@ -94,3 +94,20 @@ func TestSiteInfoCommonService_GetSiteLoginRequireEmailVerification(t *testing.T
 		})
 	}
 }
+
+// ib: Gravatar intranetten erişilemez; ne kullanıcı seçimi ne de site
+// varsayılanı Gravatar adresi üretmemeli.
+func TestSelectedAvatarIgnoresGravatar(t *testing.T) {
+	s := &siteInfoCommonService{}
+	base := "https://www.gravatar.com/avatar/"
+
+	got := s.selectedAvatar(`{"type":"gravatar","gravatar":"x"}`, constant.DefaultAvatar, base, "a@b.c", entity.UserStatusAvailable)
+	assert.Empty(t, got.Type)
+
+	got = s.selectedAvatar("", constant.AvatarTypeGravatar, base, "a@b.c", entity.UserStatusAvailable)
+	assert.Empty(t, got.Type)
+	assert.NotContains(t, got.GetURL(), "gravatar")
+
+	got = s.selectedAvatar(`{"type":"custom","custom":"/uploads/a.png"}`, constant.AvatarTypeGravatar, base, "a@b.c", entity.UserStatusAvailable)
+	assert.Equal(t, constant.AvatarTypeCustom, got.Type)
+}

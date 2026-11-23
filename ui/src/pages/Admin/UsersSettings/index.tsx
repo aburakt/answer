@@ -45,7 +45,12 @@ const UsersSettings = () => {
         title: t('avatar.label'),
         description: t('avatar.text'),
         enum: SYSTEM_AVATAR_OPTIONS?.map((v) => v.value),
-        enumNames: SYSTEM_AVATAR_OPTIONS?.map((v) => v.label),
+        enumNames: SYSTEM_AVATAR_OPTIONS?.map((v) =>
+          // ib: "System" etiketi çevrilir
+          v.value === 'system'
+            ? t('default', { keyPrefix: 'settings.profile.avatar' })
+            : v.label,
+        ),
         default: setting?.default_avatar || 'system',
       },
       gravatar_base_url: {

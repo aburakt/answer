@@ -19,6 +19,7 @@
 
 import { memo, FC } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 import classnames from 'classnames';
 
@@ -46,6 +47,7 @@ const Index: FC<Props> = ({
   updateTime = 0,
   updateTimePrefix = '',
 }) => {
+  const { t } = useTranslation();
   return (
     <div className={classnames('d-flex', className)}>
       {data?.status !== 'deleted' ? (
@@ -97,7 +99,7 @@ const Index: FC<Props> = ({
           ) : (
             <span className="me-1 text-break">{data?.display_name}</span>
           )}
-          <span className="fw-bold" title="Reputation">
+          <span className="fw-bold" title={t('personal.reputation')}>
             {formatCount(data?.rank)}
           </span>
         </div>

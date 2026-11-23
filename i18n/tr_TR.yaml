@@ -829,6 +829,7 @@ ui:
     settings: Ayarlar
     notifications: Bildirimler
     login: Giriş Yap
+    admin_login: Yönetici Girişi
     sign_up: Kayıt Ol
     account_recovery: Hesap Kurtarma
     account_activation: Hesap Aktivasyonu
@@ -1230,6 +1231,15 @@ ui:
     info_login: Zaten hesabınız var mı? <1>Giriş yapın</1>
     agreements: Kaydolarak <1>gizlilik politikasını</1> ve <3>hizmet şartlarını</3> kabul etmiş olursunuz.
     forgot_pass: Parolanızı mı unuttunuz?
+    # ib: intranet LDAP girişi ve yönetici girişi
+    ldap:
+      username:
+        label: Sicil
+        msg:
+          empty: Sicil boş olamaz.
+      error: Sicil ya da parola hatalı.
+      unavailable: LDAP girişi henüz açılmadı. Site yöneticisine başvurun.
+    admin_title: Yönetici girişi
     name:
       label: İsim
       msg:

@@ -16,7 +16,7 @@ Yerel PostgreSQL 16 üzerinde, 1.6.0 kurulumu + Keycloak biçiminde üç kullan�
 | `answer upgrade` (2.0.3) | 28 → 36, 8 migration, hata yok, 0,1 sn |
 | `site_info` diff'i | ayarlar yeni anahtarlara bölündü; eklenenler aşağıda |
 | `sql/10-keycloak-to-ldap.sql` | 3 Keycloak hesabına sicilli `ldap` satırı eklendi; ikinci çalıştırmada yeni satır yok (PostgreSQL 16, 18 Kasım) |
-| `sql/20-site-settings.sql` | e-posta doğrulama zorunluluğu kapandı, avatar `system` |
+| `sql/20-site-settings.sql` | e-posta doğrulama zorunluluğu kapandı, avatar `system`, kayıt kapandı, tema lacivert (23 Kasım) |
 | `answer run` + `/answer/api/v1/siteinfo` | 200 |
 | `pg_restore` ile geri dönüş | `version` = 28, eski kayıtlar geri geldi |
 
@@ -64,12 +64,17 @@ yeni imaj `docker compose up` ile değil, adım adım başlatılır.
    Bir kullanıcıyla giriş yapılır; kendi eski hesabına (itibarı, soruları) düştüğü
    doğrulanır.
 10. **Keycloak'ı kapat.** 9. adım doğrulandıktan sonra Admin > Eklentiler > OAuth2
-    Temel kapatılır, şifreli giriş kapatılır. LDAP'tan ilk kez gelen kullanıcının
-    hesabı ilk girişte kendiliğinden açılır.
-11. **Bot hesabı.** Kılavuz konularını açan hesap (ör. `kilavuz-bot@egmidb.gov.tr`)
+    Temel kapatılır. Şifreli giriş **açık kalır**: yalnız yöneticiler içindir ve
+    `/users/admin` adresinden yapılır; yönetici olmayan hesap şifreyle giremez.
+    Kullanıcılar `/users/login`'de doğrudan sicil ve parola (LDAP) formunu görür,
+    kayıt bağlantısı yoktur. LDAP'tan ilk kez gelen kullanıcının hesabı ilk girişte
+    kendiliğinden açılır (kayıt kapalı olsa da).
+11. **Dil.** Admin > Arayüz > Dil `Türkçe` seçilir. Tarayıcısı Türkçe olanlar
+    zaten Türkçe görür; bu, varsayılanı da Türkçe yapar.
+12. **Bot hesabı.** Kılavuz konularını açan hesap (ör. `kilavuz-bot@egmidb.gov.tr`)
     Admin > Kullanıcılar'dan yerel hesap olarak açılır; LDAP'ta olması gerekmez,
     login olmaz.
-12. **Hook kaynakları.** Admin > Eklentiler > Hook geçidi açılır, kaynaklar girilir,
+13. **Hook kaynakları.** Admin > Eklentiler > Hook geçidi açılır, kaynaklar girilir,
     `ANSWER_HOOK_SECRET_<ID>` değerleri `.env`'e konur, `docker compose up -d`.
 
 ## LDAP girişinde dikkat
@@ -79,6 +84,12 @@ yeni imaj `docker compose up` ile değil, adım adım başlatılır.
 - Plugin login formunu `Origin`/`Referer` başlığıyla doğrular: nginx `Host`'u
   korumalı, Admin > Genel'deki site adresi `https://forum.egmidb.gov.tr` olmalı.
 - `connector-ldap` henüz release almadı; `plugin_list`'te commit'e sabitli.
+- Form `/answer/api/v1/connector/redirect/ldap`'a POST eder. Upstream bu yolu
+  yalnız GET olarak tanımlıyordu, POST SPA'ya düşüp "You need to enable
+  JavaScript" dönüyordu; fork POST route'unu ekler. Hatalı sicil/parola
+  `/users/login?error=ldap`'a döner.
+- Gravatar intranetten erişilemediği için kapalıdır: seçenek arayüzden kaldırıldı,
+  veritabanında kalmış bir gravatar seçimi de `system` avatar olarak gösterilir.
 - Geri dönüş: OAuth2 Temel yeniden açılır, `basic` satırları yerinde duruyor.
 
 ## Kilitlenirsen
@@ -120,7 +131,13 @@ Fork'taki değişiklikler küçük ve ayrı dosyalarda tutulur:
 - `plugin/content_writer.go`, `internal/service/importer/content_func.go`
   (yeni dosyalar) ve `plugin_common_service.go`'da iki satır.
 - `i18n/tr_TR.yaml` ve `i18n/tr_TR_test.go`: test, upstream'in eklediği her
-  çevrilmemiş anahtarda kırılır.
+  çevrilmemiş anahtarda kırılır. `i18n/i18n.yaml`'a Türkçe dil seçeneği eklidir
+  (upstream listede yok; yoksa Türkçe hiç sunulmaz, test bunu da denetler).
+- Giriş: `ui/src/pages/Users/IbLogin` (LDAP formu, `/users/login`),
+  `/users/admin` (yönetici şifre girişi), `EmailLogin`'de yönetici kontrolü,
+  `plugin_api_router.go`'da LDAP POST route'u.
+- Tema: `ui/src/common/_ib-variables.scss` ve `ib-theme.scss` (lacivert/altın),
+  arayüz metinleri `// ib:` yorumuyla işaretli.
 - `plugins/ib-hook/` (ayrı Go modülü), `deploy/ib/`, `script/plugin_list`'te bir satır.
 
 Yol: yeni etiketten `ib/vX.Y.Z` dalı açılır, bu commit'ler cherry-pick edilir,

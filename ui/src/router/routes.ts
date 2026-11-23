@@ -250,6 +250,19 @@ const routes: RouteNode[] = [
       },
       {
         path: 'users/login',
+        page: 'pages/Users/IbLogin',
+        guard: () => {
+          const notLogged = guard.notLogged();
+          if (notLogged.ok) {
+            return notLogged;
+          }
+
+          return guard.notActivated();
+        },
+      },
+      // ib: e-posta/parola girişi yalnız yöneticiler için.
+      {
+        path: 'users/admin',
         page: 'pages/Users/Login',
         guard: () => {
           const notLogged = guard.notLogged();

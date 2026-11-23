@@ -56,6 +56,8 @@ func (pr *PluginAPIRouter) RegisterUnAuthConnectorRouter(r *gin.RouterGroup) {
 	connectorController := pr.connectorController
 	r.GET(controller.ConnectorLoginRouterPrefix+":name", connectorController.ConnectorLoginDispatcher)
 	r.GET(controller.ConnectorRedirectRouterPrefix+":name", connectorController.ConnectorRedirectDispatcher)
+	// ib: form tabanlı connector'lar (connector-ldap) kimlik bilgisini POST ile gönderir.
+	r.POST(controller.ConnectorRedirectRouterPrefix+":name", connectorController.ConnectorRedirectDispatcher)
 	r.GET("/connector/info", connectorController.ConnectorsInfo)
 	r.POST("/connector/binding/email", connectorController.ExternalLoginBindingUserSendEmail)
 

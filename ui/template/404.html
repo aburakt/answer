@@ -21,9 +21,8 @@
 {{template "header" . }}
             <div class="d-flex flex-column justify-content-center align-items-center page-wrap container">
                 <div class="mb-4 text-secondary" style="font-size: 120px; line-height: 1.2;">(=‘x‘=)</div>
-                <div class="text-center mb-4">Unfortunately, this page doesn't exist.</div>
-                <div class="text-center"><a role="button" tabindex="0" href="{{$.baseURL}}/" class="btn btn-link">Back to
-                        homepage</a></div>
+                <div class="text-center mb-4">{{translator $.language "ui.page_error.desc_404"}}</div>
+                <div class="text-center"><a role="button" tabindex="0" href="{{$.baseURL}}/" class="btn btn-link">{{translator $.language "ui.page_error.back_home"}}</a></div>
             </div>
 
 {{template "footer" .}}

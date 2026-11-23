@@ -43,7 +43,10 @@ const Index: FC = () => {
         title: t('themes.label'),
         description: t('themes.text'),
         enum: themeSetting?.theme_options?.map((_) => _.value),
-        enumNames: themeSetting?.theme_options?.map((_) => _.label),
+        enumNames: themeSetting?.theme_options?.map((_) =>
+          // ib: varsayılan temanın adı çevrilir
+          _.value === 'default' ? t('default', { keyPrefix: 'btns' }) : _.label,
+        ),
         default: themeSetting?.theme_options?.[0]?.value,
       },
       layout: {

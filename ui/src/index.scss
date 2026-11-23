@@ -17,6 +17,7 @@
  * under the License.
  */
 
+@import 'common/ib-variables';
 @import 'common/variable';
 @import 'bootstrap/scss/bootstrap';
 // The package's font-dir variable defaults to "./fonts", a path relative to
@@ -443,3 +444,6 @@ img[src=''] {
 .inherit {
   color: inherit !important;
 }
+
+// ib: kurum teması (en sonda, üstteki stilleri ezer)
+@import 'common/ib-theme';

@@ -21,7 +21,9 @@ import dayjs from 'dayjs';
 import i18next from 'i18next';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import 'dayjs/locale/tr';
 
+import './ibPluginTr';
 import {
   interfaceStore,
   loggedUserInfoStore,
@@ -139,6 +141,10 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 const localeDayjs = (langName) => {
   langName = langName.replace('_', '-').toLowerCase();
+  // ib: Day.js'in Türkçe paketi `tr` adıyla gelir (ay ve gün adları).
+  if (langName === 'tr-tr') {
+    langName = 'tr';
+  }
   dayjs.locale(langName);
 };
 

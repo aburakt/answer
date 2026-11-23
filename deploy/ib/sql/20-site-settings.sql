@@ -21,10 +21,19 @@
 -- Upgrade, v2.0.3'te `require_email_verification=true` ekliyor; connector'dan
 -- gelen e-postalar zaten doğrulanmış sayıldığı için kapatılır. Varsayılan avatar
 -- Gravatar'dı (intranette erişilemez): sistem avatarına çekilir.
--- Şifreli giriş burada KAPATILMAZ.
+-- Kayıt kapanır: kullanıcı hesapları ilk LDAP girişinde kendiliğinden açılır.
+-- Şifreli giriş açık kalır, çünkü yönetici /users/admin'den onunla girer
+-- (sunucu şifreli girişi yalnız yöneticiye izin verir). Tema kurum laciverti olur.
 BEGIN;
 UPDATE site_info SET content = jsonb_set(content::jsonb, '{require_email_verification}', 'false')::text
 WHERE type = 'login';
 UPDATE site_info SET content = jsonb_set(content::jsonb, '{default_avatar}', '"system"')::text
 WHERE type = 'users_settings';
+UPDATE site_info SET content = (content::jsonb
+    || '{"allow_new_registrations": false, "allow_email_registrations": false, "allow_password_login": true}'::jsonb)::text
+WHERE type = 'login';
+UPDATE site_info SET content = jsonb_set(jsonb_set(content::jsonb,
+    '{theme_config,default,primary_color}', '"#061c5f"'),
+    '{theme_config,default,navbar_style}', '"#061c5f"')::text
+WHERE type = 'theme';
 COMMIT;

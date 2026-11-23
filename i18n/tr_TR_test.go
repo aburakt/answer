@@ -21,6 +21,7 @@ package i18n
 
 import (
 	"fmt"
+	"os"
 	"sort"
 	"testing"
 
@@ -114,4 +115,27 @@ func TestTurkishComplete(t *testing.T) {
 	for _, k := range same {
 		t.Errorf("tr_TR'de çevrilmemiş (İngilizceyle aynı): %s = %q", k, en[k])
 	}
+}
+
+// ib: tr_TR, i18n.yaml'daki dil listesinde olmazsa sunucu onu hiç sunmaz ve
+// her şey İngilizce gelir (Accept-Language eşleşmesi bu listeye bakar).
+func TestTurkishIsLanguageOption(t *testing.T) {
+	buf, err := os.ReadFile("i18n.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var s struct {
+		Options []struct {
+			Value string `yaml:"value"`
+		} `yaml:"language_options"`
+	}
+	if err := yaml.Unmarshal(buf, &s); err != nil {
+		t.Fatal(err)
+	}
+	for _, o := range s.Options {
+		if o.Value == "tr_TR" {
+			return
+		}
+	}
+	t.Fatal("i18n.yaml language_options içinde tr_TR yok")
 }
