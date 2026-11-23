@@ -1,0 +1,90 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+// ib: lacivert ana renk + altın vurgu. Primary rengin kendisi admin
+// "Tema" ayarından da gelir (sql/20 lacivert yapar); burada altın vurgular var.
+:root {
+  --ib-navy: #{$ib-navy};
+  --ib-navy-rgb: 6, 28, 95;
+  --ib-gold: #{$ib-gold};
+  --ib-gold-rgb: 194, 156, 90;
+  // Beyaz üzerinde metin için koyulaştırılmış altın (WCAG AA, 4.5:1 üstü).
+  --ib-gold-text: #7d5e26;
+  --ib-tag-bg: #f5eedf;
+  --ib-tag-bg-hover: #ebdcbf;
+  --ib-tag-color: #{$ib-navy};
+}
+
+[data-bs-theme='dark'] {
+  --ib-gold-text: #dcc08c;
+  --ib-tag-bg: rgba(194, 156, 90, 0.18);
+  --ib-tag-bg-hover: rgba(194, 156, 90, 0.3);
+  --ib-tag-color: #ecdcbd;
+}
+
+// Üst bar: lacivert zemin, altın alt çizgi.
+#header {
+  border-bottom: 3px solid var(--ib-gold);
+}
+
+// Alt bilgi: altın üst çizgi.
+footer {
+  border-top: 2px solid rgba(var(--ib-gold-rgb), 0.6);
+}
+
+// Etiketler: açık altın zemin, lacivert yazı.
+.badge-tag,
+[data-bs-theme='dark'] .badge-tag {
+  background: var(--ib-tag-bg);
+  color: var(--ib-tag-color);
+  &:hover {
+    background: var(--ib-tag-bg-hover);
+  }
+}
+
+// Sol menüde seçili öğe ve sekmeler: altın vurgu çizgisi.
+.nav-pills .nav-link.active {
+  box-shadow: inset 3px 0 0 var(--ib-gold);
+}
+
+.nav-tabs .nav-link.active,
+.nav-underline .nav-link.active {
+  border-bottom-color: var(--ib-gold);
+}
+
+// Kabul edilmiş cevap ve rozet gibi vurgular.
+.text-ib-gold {
+  color: var(--ib-gold-text) !important;
+}
+
+// Seçim ve odak.
+::selection {
+  background: rgba(var(--ib-gold-rgb), 0.35);
+}
+
+.btn-primary:focus-visible,
+.form-control:focus-visible {
+  outline: 2px solid var(--ib-gold);
+  outline-offset: 1px;
+}
+
+// Koyu temada lacivert düğme zeminle kaynaşır; altın kenar ayırır.
+[data-bs-theme='dark'] .btn-primary {
+  border-color: var(--ib-gold);
+}

@@ -367,7 +367,7 @@ const Index: FC<Props> = ({
                 className={classNames('custom-form-control', {
                   'is-invalid': formData.content.isInvalid,
                 })}>
-                <Form.Label>Comment</Form.Label>
+                <Form.Label>{t('comment', { keyPrefix: 'btns' })}</Form.Label>
                 <Mentions
                   pageUsers={pageUsers.getUsers()}
                   onSelected={handleSelected}>

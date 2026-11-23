@@ -356,9 +356,6 @@ const Index: React.FC = () => {
                 name="avatar.type"
                 value={formData.avatar.type}
                 onChange={handleAvatarChange}>
-                <option value="gravatar" key="gravatar">
-                  {t('avatar.gravatar')}
-                </option>
                 <option value="default" key="default">
                   {t('avatar.default')}
                 </option>

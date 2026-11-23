@@ -20,7 +20,7 @@
 import React, { FormEvent, useState, useEffect } from 'react';
 import { Container, Form, Button, Col } from 'react-bootstrap';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 import { usePageTags } from '@/hooks';
 import type { LoginReqParams, FormDataType } from '@/common/interface';
@@ -30,13 +30,7 @@ import {
   loginSettingStore,
   userCenterStore,
 } from '@/stores';
-import {
-  floppyNavigation,
-  guard,
-  handleFormError,
-  userCenter,
-  scrollToElementTop,
-} from '@/utils';
+import { guard, handleFormError, scrollToElementTop } from '@/utils';
 import { PluginType, useCaptchaPlugin } from '@/utils/pluginKit';
 import { login, UcAgent } from '@/services';
 import { setupAppTheme } from '@/utils/localize';
@@ -179,7 +173,7 @@ const Index: React.FC = () => {
   }, []);
 
   usePageTags({
-    title: t('login', { keyPrefix: 'page_title' }),
+    title: t('admin_login', { keyPrefix: 'page_title' }),
   });
 
   return (
@@ -198,94 +192,68 @@ const Index: React.FC = () => {
             slug_name="captcha_google_v2"
             className="mb-5"
           />
-          {ucAgentInfo ? (
-            <PluginRender
-              type={PluginType.Connector}
-              slug_name="hosting_connector"
-              className="mb-5"
-            />
-          ) : (
-            <PluginRender
-              type={PluginType.Connector}
-              slug_name="third_party_connector"
-              className="mb-5"
-            />
-          )}
+          {/* ib: bu sayfa yalnız yönetici girişidir (/users/admin); connector'lar /users/login'de. */}
+          <h5 className="text-center mb-4">{t('admin_title')}</h5>
           {canOriginalLogin ? (
-            <>
-              <Form noValidate onSubmit={handleSubmit}>
-                <Form.Group controlId="email" className="mb-3">
-                  <Form.Label>{t('email.label')}</Form.Label>
-                  <Form.Control
-                    required
-                    tabIndex={1}
-                    type="email"
-                    value={formData.e_mail.value}
-                    isInvalid={formData.e_mail.isInvalid}
-                    onChange={(e) =>
-                      handleChange({
-                        e_mail: {
-                          value: e.target.value,
-                          isInvalid: false,
-                          errorMsg: '',
-                        },
-                      })
-                    }
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {formData.e_mail.errorMsg}
-                  </Form.Control.Feedback>
-                </Form.Group>
+            <Form noValidate onSubmit={handleSubmit}>
+              <Form.Group controlId="email" className="mb-3">
+                <Form.Label>{t('email.label')}</Form.Label>
+                <Form.Control
+                  required
+                  tabIndex={1}
+                  type="email"
+                  value={formData.e_mail.value}
+                  isInvalid={formData.e_mail.isInvalid}
+                  onChange={(e) =>
+                    handleChange({
+                      e_mail: {
+                        value: e.target.value,
+                        isInvalid: false,
+                        errorMsg: '',
+                      },
+                    })
+                  }
+                />
+                <Form.Control.Feedback type="invalid">
+                  {formData.e_mail.errorMsg}
+                </Form.Control.Feedback>
+              </Form.Group>
 
-                <Form.Group controlId="pass" className="mb-3">
-                  <div className="d-flex justify-content-between">
-                    <Form.Label>{t('password.label')}</Form.Label>
-                    <Link to="/users/account-recovery" tabIndex={2}>
-                      <small>{t('forgot_pass')}</small>
-                    </Link>
-                  </div>
-
-                  <Form.Control
-                    required
-                    tabIndex={1}
-                    type="password"
-                    // value={formData.pass.value}
-                    isInvalid={formData.pass.isInvalid}
-                    onChange={(e) =>
-                      handleChange({
-                        pass: {
-                          value: e.target.value,
-                          isInvalid: false,
-                          errorMsg: '',
-                        },
-                      })
-                    }
-                  />
-                  <Form.Control.Feedback type="invalid">
-                    {formData.pass.errorMsg}
-                  </Form.Control.Feedback>
-                </Form.Group>
-
-                <div className="d-grid">
-                  <Button variant="primary" type="submit" tabIndex={1}>
-                    {t('login', { keyPrefix: 'btns' })}
-                  </Button>
+              <Form.Group controlId="pass" className="mb-3">
+                <div className="d-flex justify-content-between">
+                  <Form.Label>{t('password.label')}</Form.Label>
+                  <Link to="/users/account-recovery" tabIndex={2}>
+                    <small>{t('forgot_pass')}</small>
+                  </Link>
                 </div>
-              </Form>
-              {loginSetting.allow_new_registrations && (
-                <div className="text-center mt-5">
-                  <Trans i18nKey="login.info_sign" ns="translation">
-                    Don't have an account?
-                    <Link
-                      to={userCenter.getSignUpUrl()}
-                      tabIndex={2}
-                      onClick={floppyNavigation.handleRouteLinkClick}>
-                      Sign up
-                    </Link>
-                  </Trans>
-                </div>
-              )}
-            </>
+
+                <Form.Control
+                  required
+                  tabIndex={1}
+                  type="password"
+                  // value={formData.pass.value}
+                  isInvalid={formData.pass.isInvalid}
+                  onChange={(e) =>
+                    handleChange({
+                      pass: {
+                        value: e.target.value,
+                        isInvalid: false,
+                        errorMsg: '',
+                      },
+                    })
+                  }
+                />
+                <Form.Control.Feedback type="invalid">
+                  {formData.pass.errorMsg}
+                </Form.Control.Feedback>
+              </Form.Group>
+
+              <div className="d-grid">
+                <Button variant="primary" type="submit" tabIndex={1}>
+                  {t('login', { keyPrefix: 'btns' })}
+                </Button>
+              </div>
+            </Form>
           ) : null}
         </Col>
       ) : null}

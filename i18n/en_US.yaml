@@ -840,6 +840,7 @@ ui:
     settings: Settings
     notifications: Notifications
     login: Log In
+    admin_login: Administrator Login
     sign_up: Sign Up
     account_recovery: Account Recovery
     account_activation: Account Activation
@@ -1250,6 +1251,15 @@ ui:
     info_login: Already have an account? <1>Log in</1>
     agreements: By registering, you agree to the <1>privacy policy</1> and <3>terms of service</3>.
     forgot_pass: Forgot password?
+    # ib: intranet LDAP girişi ve yönetici girişi
+    ldap:
+      username:
+        label: Registry number
+        msg:
+          empty: Registry number cannot be empty.
+      error: Registry number or password is incorrect.
+      unavailable: LDAP login is not enabled yet. Please contact the site administrator.
+    admin_title: Administrator login
     name:
       label: Name
       msg:

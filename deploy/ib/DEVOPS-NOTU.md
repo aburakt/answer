@@ -78,6 +78,9 @@ değişikliği. Kod değiştiysen dosyanın kendisini de gönder.
 - `sql/10-keycloak-to-ldap.sql` ve `sql/20-site-settings.sql`. İkisi de iki kez
   çalıştırılırsa sorun çıkarmaz.
 - `RUNBOOK.md`: yedek, upgrade, smoke test ve geri dönüş adımları.
+- Giriş: kullanıcılar `/users/login`'de sicil ve parolayla (LDAP) girer, kayıt
+  kapalıdır. Şifreli giriş yalnız yöneticiler içindir, `/users/admin` adresinden.
+  Acil durumda admin'e giriş RUNBOOK'taki "Kilitlenirsen" bölümünde.
 
 ## 3. Geçiş günü senden beklenen
 

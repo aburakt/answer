@@ -202,7 +202,7 @@ const Index = (captchaKey: CaptchaKey) => {
     refRoot.current.render(
       <Modal
         size="sm"
-        title="Captcha"
+        title={t('title')}
         show={stateShow}
         onHide={() => close()}
         centered>

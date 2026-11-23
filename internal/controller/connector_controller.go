@@ -150,6 +150,12 @@ func (cc *ConnectorController) ConnectorRedirect(connector plugin.Connector) (fn
 		userInfo, err := connector.ConnectorReceiver(ctx, receiverURL)
 		if err != nil {
 			log.Errorf("connector received failed, error info: %v, response data is: %s", err, userInfo.MetaInfo)
+			// ib: form tabanlı girişte (POST) hata, kullanıcıyı login formuna geri gönderir.
+			if ctx.Request.Method == http.MethodPost {
+				ctx.Redirect(http.StatusSeeOther, fmt.Sprintf("%s/users/login?error=%s",
+					siteGeneral.SiteUrl, connector.ConnectorSlugName()))
+				return
+			}
 			ctx.Redirect(http.StatusFound, "/50x")
 			return
 		}

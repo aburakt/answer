@@ -179,6 +179,10 @@ func (us *UserService) EmailLogin(ctx context.Context, req *schema.UserEmailLogi
 	if !ok {
 		return nil, errors.BadRequest(reason.EmailOrPasswordWrong)
 	}
+	// ib: e-posta/şifre girişi yalnız yöneticiler içindir; diğer herkes LDAP ile girer.
+	if roleID, _ := us.userRoleService.GetUserRole(ctx, userInfo.ID); roleID != role.RoleAdminID {
+		return nil, errors.BadRequest(reason.EmailOrPasswordWrong)
+	}
 
 	err = us.userRepo.UpdateLastLoginDate(ctx, userInfo.ID)
 	if err != nil {

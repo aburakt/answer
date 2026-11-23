@@ -159,6 +159,13 @@ func (s *siteInfoCommonService) selectedAvatar(
 	email string, userStatus int) *schema.AvatarInfo {
 	avatarInfo := &schema.AvatarInfo{}
 	_ = json.Unmarshal([]byte(originalAvatarData), avatarInfo)
+	// ib: intranetten Gravatar'a erişilemez; gravatar seçimi yok sayılır, ayarlı varsayılan avatar kullanılır.
+	if defaultAvatar == constant.AvatarTypeGravatar {
+		defaultAvatar = constant.DefaultAvatar
+	}
+	if avatarInfo.Type == constant.AvatarTypeGravatar {
+		avatarInfo.Type = ""
+	}
 	if len(avatarInfo.Type) == 0 && checker.IsURL(originalAvatarData) {
 		avatarInfo.Type = constant.AvatarTypeCustom
 		avatarInfo.Custom = originalAvatarData
