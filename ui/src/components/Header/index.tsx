@@ -36,7 +36,7 @@ import {
 import { logout, useQueryNotificationStatus } from '@/services';
 import { Icon, MobileSideNav } from '@/components';
 import { DEFAULT_NAVBAR_COLOR, IB_NAVBAR_DARK_COLOR } from '@/common/constants';
-import IbAmblem from '@/assets/images/ib-amblem.png';
+import IbLogo from '@/assets/images/ib-logo.svg';
 
 import NavItems from './components/NavItems';
 import SearchInput from './components/SearchInput';
@@ -169,10 +169,10 @@ const Header: FC = () => {
               />
             </>
           ) : (
-            // ib: yüklenmiş logo yoksa amblem ve yazı. Yazı rengi üst barın
+            // ib: yüklenmiş logo yoksa forum logosu ve yazı. Yazı rengi üst barın
             // açık ya da koyu olmasına göre CSS'ten gelir.
             <span className="ib-brand" aria-label={siteInfo.name}>
-              <img className="ib-brand-emblem" src={IbAmblem} alt="" />
+              <img className="ib-brand-emblem" src={IbLogo} alt="" />
               <span className="ib-brand-text d-none d-sm-flex">
                 <span className="ib-brand-title">İSTİHBARAT BAŞKANLIĞI</span>
                 <span className="ib-brand-sub">FORUM UYGULAMASI</span>

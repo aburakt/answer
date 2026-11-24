@@ -137,9 +137,9 @@ html:root[data-bs-theme='dark'] {
   color: var(--ib-gold);
 }
 
-// Üst bar: açık temada beyaz, koyu temada lacivert; altın alt çizgi.
+// Üst bar: açık temada beyaz, koyu temada lacivert; ince altın alt çizgi.
 #header {
-  border-bottom: 3px solid var(--ib-gold);
+  border-bottom: 1px solid rgba(var(--ib-gold-rgb), 0.55);
 
   .ib-brand {
     display: inline-flex;
@@ -149,8 +149,10 @@ html:root[data-bs-theme='dark'] {
   }
 
   .ib-brand-emblem {
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    // Logonun beyaz çerçevesi beyaz üst barda da seçilsin.
+    filter: drop-shadow(0 0 1px rgba(var(--ib-navy-rgb), 0.45));
   }
 
   .ib-brand-text {
@@ -217,9 +219,9 @@ html:root[data-bs-theme='dark'] {
   }
 }
 
-// Alt bilgi: altın üst çizgi.
+// Alt bilgi: ince altın üst çizgi.
 footer {
-  border-top: 2px solid rgba(var(--ib-gold-rgb), 0.6);
+  border-top: 1px solid rgba(var(--ib-gold-rgb), 0.4);
 }
 
 // Etiketler: açık altın zemin, lacivert yazı.
@@ -232,9 +234,9 @@ footer {
   }
 }
 
-// Sol menüde seçili öğe ve sekmeler: altın vurgu çizgisi.
+// Sol menüde seçili öğe: her kenarda ince, saydam altın çerçeve.
 .nav-pills .nav-link.active {
-  box-shadow: inset 3px 0 0 var(--ib-gold);
+  box-shadow: inset 0 0 0 1px rgba(var(--ib-gold-rgb), 0.45);
 }
 
 .nav-tabs .nav-link.active,
@@ -263,13 +265,13 @@ footer {
   border-color: var(--ib-gold);
 }
 
-// Rozet seviyeleri: parlak turuncu/sarı yerine logo paletine yakın metal tonları.
+// Rozet seviyeleri statüye göre griden altına gider.
 .bronze {
-  color: #a5683a;
+  color: #8a93a6;
 }
 
 .silver {
-  color: #8592ad;
+  color: #b3a37f;
 }
 
 .gold {
@@ -278,18 +280,49 @@ footer {
 
 :root[data-bs-theme='dark'] {
   .bronze {
-    color: #c08552;
+    color: #98a2b8;
   }
 
   .silver {
-    color: #a9b4cc;
+    color: #c9b891;
   }
 }
 
-// Giriş ekranı: amblem ve başlık, altın üst çizgili kart.
+// Bilirkişi rozeti (mortarboard-fill): seviyesinden bağımsız altın, çift
+// altın halka içinde. Ölçüler em: simge her boyutta aynı oranı korur.
+.bi-mortarboard-fill {
+  &.bronze,
+  &.silver,
+  &.gold {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 1em;
+    height: 1em;
+    border: 0.035em solid var(--ib-gold);
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgba(var(--ib-gold-rgb), 0.22) 0%,
+      rgba(var(--ib-gold-rgb), 0.06) 70%
+    );
+    box-shadow:
+      inset 0 0 0 0.03em var(--ib-surface),
+      inset 0 0 0 0.045em rgba(var(--ib-gold-rgb), 0.55),
+      0 0 0.12em rgba(var(--ib-gold-rgb), 0.45);
+    color: var(--ib-gold);
+
+    &::before {
+      transform: scale(0.56);
+    }
+  }
+}
+
+// Giriş ekranı: amblem ve başlık, ince altın çerçeveli kart.
 .ib-login {
   padding: 2rem 2rem 2.25rem;
-  border-top: 3px solid var(--ib-gold);
+  border: 1px solid rgba(var(--ib-gold-rgb), 0.45);
   box-shadow: 0 0.5rem 1.5rem rgba(var(--ib-navy-rgb), 0.08);
 }
 
