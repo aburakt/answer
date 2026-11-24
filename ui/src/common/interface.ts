@@ -237,6 +237,8 @@ export interface NotificationStatus {
 
 export interface QuestionDetailRes {
   id: string;
+  // ib: duyuru yapıldığı an (unix), duyuru değilse 0
+  announced_at?: number;
   title: string;
   content: string;
   html: string;
@@ -686,7 +688,8 @@ export interface MemberActionItem {
 
 export interface QuestionOperationReq {
   id: string;
-  operation: 'pin' | 'unpin' | 'hide' | 'show';
+  // ib: announce = sabitle + duyuru bandı
+  operation: 'pin' | 'unpin' | 'hide' | 'show' | 'announce' | 'unannounce';
 }
 
 export interface OauthBindEmailReq {

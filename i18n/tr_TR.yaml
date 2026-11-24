@@ -47,6 +47,10 @@ backend:
       other: Erişim engellendi.
     pin:
       other: Sabitle
+    announce:
+      other: Duyuru Yap
+    unannounce:
+      other: Duyuruyu Kaldır
     hide:
       other: Listeden Kaldır
     unpin:
@@ -1490,6 +1494,12 @@ ui:
       title: Bu gönderiyi sabitle
       content: Küresel olarak sabitlemek istediğinizden emin misiniz? Bu gönderi tüm gönderi listelerinin en üstünde görünecektir.
       confirm_btn: Sabitle
+    announce:
+      title: Bu gönderiyi duyuru yap
+      content: Gönderi tüm listelerin en üstüne sabitlenecek ve duyuru bandıyla gösterilecek. Devam edilsin mi?
+      confirm_btn: Duyuru Yap
+      heading: DUYURU
+      date: Duyuru tarihi
   delete:
     title: Bu gönderiyi sil
     question: >-
@@ -2457,6 +2467,8 @@ ui:
     post_cancel_deleted: Bu gönderinin silme işlemi geri alındı.
     post_pin: Bu gönderi sabitlendi.
     post_unpin: Bu gönderinin sabitlenmesi kaldırıldı.
+    post_announce: Bu gönderi duyuru yapıldı.
+    post_unannounce: Duyuru kaldırıldı.
     post_hide_list: Bu gönderi listede gizlendi.
     post_show_list: Bu gönderi listede gösterildi.
     post_reopen: Bu gönderi yeniden açıldı.

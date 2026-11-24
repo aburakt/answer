@@ -54,6 +54,8 @@ yeni imaj `docker compose up` ile değil, adım adım başlatılır.
 6. **Kimlik eşleme.** `psql -v ON_ERROR_STOP=1 -U answer -f sql/10-keycloak-to-ldap.sql`
    İlk iki sorgu satır döndürürse dur: o kullanıcılar elle çözülür.
 7. **Ayarlar.** `psql -v ON_ERROR_STOP=1 -U answer -f sql/20-site-settings.sql`
+   İsteğe bağlı: `sql/30-duyurular.sql` eski sürümde kapatılıp sabitlenerek yapılmış
+   duyuruları yeni "Duyuru" işaretine çevirir (önce betiğin başındaki `SELECT` ile bakın).
 8. **Başlat.** `docker compose up -d`
 9. **LDAP connector'ı aç.** Admin > Eklentiler > LDAP connector:
    - `LDAP sunucusu`: `ldaps://<sunucu>:636` ya da `ldap://<sunucu>:389`.
@@ -192,3 +194,14 @@ Fork'taki değişiklikler küçük ve ayrı dosyalarda tutulur:
 
 Yol: yeni etiketten `ib/vX.Y.Z` dalı açılır, bu commit'ler cherry-pick edilir,
 `go test ./i18n/ ./plugins/ib-hook/...` yeşil olana kadar çeviri tamamlanır.
+
+## Duyuru
+
+Yönetici ve moderatör, sorunun menüsünden **Duyuru Yap** ile soruyu duyuruya
+çevirir: soru sabitlenir ve üstünde duyuru bandı görünür. **Duyuruyu Kaldır**
+ikisini de geri alır. Eski sürümdeki gibi soruyu kapatmak gerekmez; duyuruya
+cevap yazılması istenmiyorsa ayrıca **Kapat** kullanılır (bant yine duyuru
+olarak kalır). İşaret `meta` tablosunda `ib.question.announcement` anahtarıyla
+durur. Fork dosyaları: `internal/service/permission/question_permission.go`
+(`WithAnnouncementActions`), `question_service.go` (`OperationQuestion`),
+`ui/src/pages/Questions/Detail/components/IbAnnouncement`.
