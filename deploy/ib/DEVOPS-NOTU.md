@@ -35,7 +35,9 @@ nota yazılmaz. Yalnız adları ve sunucuda nerede durdukları lazım.
 
 ### 1.2.1 LDAP
 
-- [ ] LDAP sunucu adresi ve portu (LDAPS mı, StartTLS mi?), Base DN.
+- [ ] LDAP sunucu adresi ve portu, Base DN. Bağlantı LDAPS mı, StartTLS mi, şifresiz mi?
+      Öbür uygulamalar (YAPI, TOY) aynı sunucuya hangi adres ve ayarla bağlanıyor?
+- [ ] Answer konteyneri bu adrese erişebiliyor mu (DNS ve güvenlik duvarı)?
 - [ ] Salt okunur bir bind hesabı (DN'i yeterli, parolayı nota yazma).
 - [ ] Sicil hangi alanda (`sAMAccountName`, `uid`, ...)? Kullanıcılarda `mail`
       alanı dolu mu?

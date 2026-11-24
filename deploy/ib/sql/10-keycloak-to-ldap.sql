@@ -17,10 +17,10 @@
 -- under the License.
 --
 
--- ib: Keycloak (connector-basic, provider 'basic') hesaplarını connector-ldap'a
+-- ib: Keycloak (connector-basic, provider 'basic') hesaplarını LDAP girişine
 -- (provider 'ldap') bağlar. Answer, bilinmeyen bir dış kimlik aynı e-postayla
 -- gelirse girişi reddeder; bu yüzden her kullanıcıya sicili external_id olan
--- bir 'ldap' satırı eklenir. connector-ldap'ta "External ID Attribute" sicili
+-- bir 'ldap' satırı eklenir. Eklentide "Dış kimlik alanı" sicili
 -- veren alan olmalı (ör. sAMAccountName). 'basic' satırlarına dokunulmaz, geri
 -- dönüşte Keycloak çalışmaya devam eder. İki kez çalıştırılırsa yeni satır eklemez.
 BEGIN;

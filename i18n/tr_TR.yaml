@@ -1237,8 +1237,20 @@ ui:
         label: Sicil
         msg:
           empty: Sicil boş olamaz.
-      error: Sicil ya da parola hatalı.
       unavailable: LDAP girişi henüz açılmadı. Site yöneticisine başvurun.
+      reason:
+        credentials: "Sicil ya da parola hatalı."
+        mail: "LDAP kaydınızda e-posta adresi yok. Site yöneticisine başvurun."
+        account: "LDAP'taki e-posta adresiniz forumda başka bir hesaba bağlı ya da hesabınız kapatılmış. Site yöneticisine başvurun."
+        connect: "Giriş şu an yapılamıyor: LDAP sunucusuna ulaşılamadı. (kod: connect)"
+        tls: "Giriş şu an yapılamıyor: LDAP sunucusuyla güvenli bağlantı kurulamadı. (kod: tls)"
+        bind: "Giriş şu an yapılamıyor: LDAP servis hesabı reddedildi. (kod: bind)"
+        search: "Giriş şu an yapılamıyor: LDAP araması başarısız. (kod: search)"
+        config: "Giriş şu an yapılamıyor: LDAP ayarları eksik. (kod: config)"
+        identity: "Giriş şu an yapılamıyor: LDAP kaydınızda kimlik alanı boş. (kod: identity)"
+        origin: "Giriş reddedildi: site adresi tarayıcıdaki adresle eşleşmiyor. (kod: origin)"
+        internal: "Hesabınız oluşturulurken hata oluştu. Yeniden deneyin; sürerse site yöneticisine başvurun. (kod: internal)"
+        unknown: "Giriş yapılamadı. Site yöneticisine başvurun. (kod: unknown)"
     admin_title: Yönetici girişi
     name:
       label: İsim

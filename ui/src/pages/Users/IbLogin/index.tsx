@@ -18,7 +18,7 @@
  */
 
 // ib: intranet girişi. Kullanıcılar sicil ve parolayla doğrudan LDAP'tan
-// (connector-ldap) girer; form, connector'ın redirect ucuna doğal POST yapar.
+// (plugins/ib-ldap) girer; form, connector'ın redirect ucuna doğal POST yapar.
 // E-posta/parola girişi yalnız yöneticiler içindir ve /users/admin'dedir.
 import React, { FormEvent, useState } from 'react';
 import { Alert, Button, Col, Container, Form } from 'react-bootstrap';
@@ -31,12 +31,29 @@ import { PluginType } from '@/utils/pluginKit';
 import { useGetStartUseOauthConnector } from '@/plugins/builtin/ThirdPartyConnector/services';
 
 const LDAP_SLUG = 'ldap';
+// Görelidir: site adresi ayarı yanlış olsa da form, açıldığı siteye gider.
+const LDAP_ACTION = `/answer/api/v1/connector/redirect/${LDAP_SLUG}`;
+const REASONS = [
+  'credentials',
+  'mail',
+  'account',
+  'connect',
+  'tls',
+  'bind',
+  'search',
+  'config',
+  'identity',
+  'origin',
+  'internal',
+  'unknown',
+];
 
 const Index: React.FC = () => {
   const { t } = useTranslation('translation', { keyPrefix: 'login' });
   const [searchParams] = useSearchParams();
   const { data: connectors } = useGetStartUseOauthConnector();
   const ldap = connectors?.find((c) => c.link.endsWith(`/login/${LDAP_SLUG}`));
+  const reason = searchParams.get('reason') || 'credentials';
   const [invalid, setInvalid] = useState({ username: false, password: false });
 
   usePageTags({ title: t('login', { keyPrefix: 'page_title' }) });
@@ -59,17 +76,18 @@ const Index: React.FC = () => {
       <Col className="mx-auto" md={6} lg={4} xl={3}>
         {searchParams.get('error') === LDAP_SLUG && (
           <Alert variant="danger" role="alert">
-            {t('ldap.error')}
+            {t(
+              REASONS.includes(reason)
+                ? `ldap.reason.${reason}`
+                : 'ldap.reason.credentials',
+            )}
           </Alert>
         )}
         {ldap ? (
           <Form
             noValidate
             method="post"
-            action={ldap.link.replace(
-              `/connector/login/${LDAP_SLUG}`,
-              `/connector/redirect/${LDAP_SLUG}`,
-            )}
+            action={LDAP_ACTION}
             onSubmit={handleSubmit}>
             <Form.Group controlId="username" className="mb-3">
               <Form.Label>{t('ldap.username.label')}</Form.Label>

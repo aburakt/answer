@@ -20,6 +20,7 @@
 package controller
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -150,10 +151,8 @@ func (cc *ConnectorController) ConnectorRedirect(connector plugin.Connector) (fn
 		userInfo, err := connector.ConnectorReceiver(ctx, receiverURL)
 		if err != nil {
 			log.Errorf("connector received failed, error info: %v, response data is: %s", err, userInfo.MetaInfo)
-			// ib: form tabanlı girişte (POST) hata, kullanıcıyı login formuna geri gönderir.
-			if ctx.Request.Method == http.MethodPost {
-				ctx.Redirect(http.StatusSeeOther, fmt.Sprintf("%s/users/login?error=%s",
-					siteGeneral.SiteUrl, connector.ConnectorSlugName()))
+			// ib: form tabanlı girişte (POST) hata, kullanıcıyı nedeniyle birlikte login formuna geri gönderir.
+			if redirectFormLoginError(ctx, connector, loginErrorCode(err)) {
 				return
 			}
 			ctx.Redirect(http.StatusFound, "/50x")
@@ -193,10 +192,17 @@ func (cc *ConnectorController) ConnectorRedirect(connector plugin.Connector) (fn
 		resp, err := cc.userExternalService.ExternalLogin(ctx, u)
 		if err != nil {
 			log.Errorf("external login failed: %v", err)
+			if redirectFormLoginError(ctx, connector, "internal") {
+				return
+			}
 			ctx.Redirect(http.StatusFound, "/50x")
 			return
 		}
 		if len(resp.ErrMsg) > 0 {
+			log.Errorf("external login denied for %s: %s", u.ExternalID, resp.ErrMsg)
+			if redirectFormLoginError(ctx, connector, "account") {
+				return
+			}
 			ctx.Redirect(http.StatusFound, fmt.Sprintf("/50x?title=%s&msg=%s", resp.ErrTitle, resp.ErrMsg))
 			return
 		}
@@ -335,4 +341,24 @@ func (cc *ConnectorController) ExternalLoginUnbinding(ctx *gin.Context) {
 
 	resp, err := cc.userExternalService.ExternalLoginUnbinding(ctx, req)
 	handler.HandleResponse(ctx, err, resp)
+}
+
+// ib: form tabanlı connector'ların (ldap) hata kodunu okur. Kod taşımayan hata "unknown" olur.
+func loginErrorCode(err error) string {
+	var coded interface{ LoginErrorCode() string }
+	if errors.As(err, &coded) {
+		return coded.LoginErrorCode()
+	}
+	return "unknown"
+}
+
+// ib: POST ile gelen (form tabanlı) girişte hatayı login formuna taşır. Adres görelidir:
+// site adresi ayarı yanlış olsa da kullanıcı geldiği sitede kalır. GET akışına dokunmaz.
+func redirectFormLoginError(ctx *gin.Context, connector plugin.Connector, code string) bool {
+	if ctx.Request.Method != http.MethodPost {
+		return false
+	}
+	q := url.Values{"error": {connector.ConnectorSlugName()}, "reason": {code}}
+	ctx.Redirect(http.StatusSeeOther, "/users/login?"+q.Encode())
+	return true
 }
