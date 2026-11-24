@@ -36,4 +36,25 @@ UPDATE site_info SET content = jsonb_set(jsonb_set(content::jsonb,
     '{theme_config,default,primary_color}', '"#061c5f"'),
     '{theme_config,default,navbar_style}', '"#061c5f"')::text
 WHERE type = 'theme';
+-- id sıraları: kurulumun elle verdiği id'ler (yönetici = 1) sırayı ilerletmez; yeni
+-- kurulmuş bir veritabanında ilk LDAP kullanıcısı "duplicate key ... user_pkey" ile
+-- düşer. Sıra tablodaki en büyük id'ye çekilir, hiçbir zaman geri alınmaz.
+-- (internal/migrations/init.go SyncIDSequencesSQL ile aynı.)
+DO $$
+DECLARE r record; m bigint;
+BEGIN
+  FOR r IN
+    SELECT c.table_name AS t, pg_get_serial_sequence(quote_ident(c.table_name), 'id') AS s
+    FROM information_schema.columns c
+    WHERE c.table_schema = current_schema() AND c.column_name = 'id'
+  LOOP
+    IF r.s IS NOT NULL THEN
+      EXECUTE format('SELECT max(id) FROM %I', r.t) INTO m;
+      IF m IS NOT NULL THEN
+        EXECUTE format('SELECT setval(%L, greatest(%s, last_value)) FROM %s', r.s, m, r.s);
+      END IF;
+    END IF;
+  END LOOP;
+END $$;
+
 COMMIT;

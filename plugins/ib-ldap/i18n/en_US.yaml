@@ -1,0 +1,128 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+plugin:
+  ldap_connector:
+    backend:
+      name:
+        other: LDAP
+      info:
+        name:
+          other: LDAP login
+        description:
+          other: Sign in with the organisation LDAP (Active Directory) using registry number and password
+      security:
+        tls:
+          other: Encrypted (TLS for ldaps://, StartTLS for ldap://)
+        none:
+          other: Unencrypted (ldap:// only)
+      config:
+        name:
+          title:
+            other: Name
+          description:
+            other: Display name of the connector. Optional.
+        server:
+          title:
+            other: LDAP server
+          description:
+            other: e.g. ldaps://dc1.example.local:636 or ldap://10.0.0.5:389. Without a scheme ldap:// is assumed.
+        security:
+          title:
+            other: Connection security
+          description:
+            other: StartTLS is used on ldap://. Choose "Unencrypted" if the server has no TLS; passwords then travel in clear text.
+        tls_skip_verify:
+          title:
+            other: Certificate verification
+          description:
+            other: Turn on when the server is addressed by IP or its certificate comes from an internal CA and no CA file is available. The connection stays encrypted.
+          label:
+            other: Do not verify the server certificate
+        tls_ca_cert_path:
+          title:
+            other: CA certificate file
+          description:
+            other: PEM file of the internal CA, as a path inside the container (e.g. /data/ldap-ca.pem). Optional.
+        base_dn:
+          title:
+            other: Base DN
+          description:
+            other: Root to search users under, e.g. DC=example,DC=local
+        bind_dn:
+          title:
+            other: Bind DN
+          description:
+            other: Read-only service account used for searching. A DN, user@domain or DOMAIN\user.
+        bind_password:
+          title:
+            other: Bind password
+          description:
+            other: Password of the service account
+        user_attr:
+          title:
+            other: User attribute
+          description:
+            other: LDAP attribute matching what is typed on the login form (sAMAccountName on Active Directory)
+        external_id_attr:
+          title:
+            other: External ID attribute
+          description:
+            other: Stable attribute identifying the user across logins (sAMAccountName).
+        mail_domain:
+          title:
+            other: Mail domain
+          description:
+            other: When the mail attribute is empty the address becomes user@domain. Leave empty to reject users without mail.
+        test_user:
+          title:
+            other: Test user
+          description:
+            other: User to look up in the connection test. No password needed. Optional.
+        test:
+          title:
+            other: Connection test
+          description:
+            other: Connects with the saved settings and checks the service account and the test user. Save first.
+          label:
+            other: Test connection
+      test:
+        ok:
+          other: LDAP connection and service account work.
+        user_ok:
+          other: 'Found: %s'
+        failed:
+          other: LDAP test failed.
+      reason:
+        credentials:
+          other: User not found or wrong password.
+        config:
+          other: Plugin settings are missing or invalid.
+        connect:
+          other: LDAP server unreachable (address, port, DNS or firewall).
+        tls:
+          other: Encrypted connection failed (certificate not verified or no TLS on the server).
+        bind:
+          other: Service account rejected (Bind DN or its password).
+        search:
+          other: Search failed (Base DN, service account permissions or duplicate users).
+        mail:
+          other: Entry has no mail and no mail domain is set.
+        identity:
+          other: External ID attribute is empty.
+        origin:
+          other: Request did not come from the site itself (site URL in Admin > General and the proxy Host header).

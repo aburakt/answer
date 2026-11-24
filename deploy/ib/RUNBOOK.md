@@ -1,7 +1,7 @@
 # Answer 1.6.0 → 2.0.3 geçiş runbook'u (intranet)
 
 Kurulum: Answer Docker'da, PostgreSQL sunucunun kendisinde. Giriş Keycloak'tan
-intranet LDAP'ına geçer: upstream `connector-ldap` plugin'i, Answer'ın kendi login
+intranet LDAP'ına geçer: `plugins/ib-ldap` eklentisi, Answer'ın kendi login
 ekranında sicil ve şifre sorar, doğrudan LDAP'a doğrulatır.
 
 ## Provada denenenler (17 Kasım 2026)
@@ -16,7 +16,8 @@ Yerel PostgreSQL 16 üzerinde, 1.6.0 kurulumu + Keycloak biçiminde üç kullan�
 | `answer upgrade` (2.0.3) | 28 → 36, 8 migration, hata yok, 0,1 sn |
 | `site_info` diff'i | ayarlar yeni anahtarlara bölündü; eklenenler aşağıda |
 | `sql/10-keycloak-to-ldap.sql` | 3 Keycloak hesabına sicilli `ldap` satırı eklendi; ikinci çalıştırmada yeni satır yok (PostgreSQL 16, 18 Kasım) |
-| `sql/20-site-settings.sql` | e-posta doğrulama zorunluluğu kapandı, avatar `system`, kayıt kapandı, tema lacivert (23 Kasım) |
+| `sql/20-site-settings.sql` | e-posta doğrulama zorunluluğu kapandı, avatar `system`, kayıt kapandı, tema lacivert (23 Kasım), id sıraları düzeltildi (24 Kasım) |
+| LDAP girişi (24 Kasım) | gerçek build + nginx (TLS) + PostgreSQL 16 + Samba Active Directory ile uçtan uca: ldaps, StartTLS, şifresiz, IP adresi, iç CA, hatalı ayarlar, e-postasız ve pasif hesaplar |
 | `answer run` + `/answer/api/v1/siteinfo` | 200 |
 | `pg_restore` ile geri dönüş | `version` = 28, eski kayıtlar geri geldi |
 
@@ -55,14 +56,23 @@ yeni imaj `docker compose up` ile değil, adım adım başlatılır.
 7. **Ayarlar.** `psql -v ON_ERROR_STOP=1 -U answer -f sql/20-site-settings.sql`
 8. **Başlat.** `docker compose up -d`
 9. **LDAP connector'ı aç.** Admin > Eklentiler > LDAP connector:
-   - `Server`: `ldaps://<ldap-sunucusu>:636` (ya da `ldap://...:389`, StartTLS ile)
-   - `Base DN`, `Bind DN` ve `Bind Password`: salt okunur bir servis hesabı. Parola
-     yalnız admin ekranına girilir, hiçbir dosyaya yazılmaz.
-   - `User Attribute` ve `External ID Attribute`: sicili veren alan
-     (Active Directory'de genelde `sAMAccountName`).
-   - İç CA kullanılıyorsa `TLS CA Certificate Path` (dosya `/data` altına konur).
-   Bir kullanıcıyla giriş yapılır; kendi eski hesabına (itibarı, soruları) düştüğü
-   doğrulanır.
+   - `LDAP sunucusu`: `ldaps://<sunucu>:636` ya da `ldap://<sunucu>:389`.
+   - `Bağlantı güvenliği`: `ldap://` adresinde StartTLS denenir. Sunucuda TLS
+     yoksa "Şifresiz" seçilir.
+   - `Sertifika doğrulaması`: sunucu IP adresiyle yazıldıysa ya da sertifikası iç
+     CA'dan geliyorsa "doğrulama" açılır, ya da CA'nın PEM dosyası `/data` altına
+     konup `CA sertifika dosyası`na yolu yazılır.
+   - `Base DN`, `Bind DN` ve `Bind parolası`: salt okunur bir servis hesabı. Bind DN
+     `kullanici@alan` biçiminde de yazılabilir. Parola yalnız admin ekranına
+     girilir, hiçbir dosyaya yazılmaz.
+   - `Kullanıcı alanı` ve `Dış kimlik alanı`: sicili veren alan (`sAMAccountName`).
+   - `E-posta alan adı`: `egmidb.gov.tr`. LDAP kaydında `mail` boşsa e-posta
+     `sicil@egmidb.gov.tr` olur; boş bırakılırsa e-postası olmayan giremez.
+   - `Deneme sicili` yazılıp **Kaydet**'e, sonra **Bağlantıyı dene**'ye basılır.
+     Deneme bağlantıyı, servis hesabını ve o sicilin kaydını sınar (kullanıcı
+     parolası gerekmez) ve sonucu ya da hatanın nedenini ekranda gösterir.
+   Sonra bir kullanıcıyla giriş yapılır; kendi eski hesabına (itibarı, soruları)
+   düştüğü doğrulanır.
 10. **Keycloak'ı kapat.** 9. adım doğrulandıktan sonra Admin > Eklentiler > OAuth2
     Temel kapatılır. Şifreli giriş **açık kalır**: yalnız yöneticiler içindir ve
     `/users/admin` adresinden yapılır; yönetici olmayan hesap şifreyle giremez.
@@ -79,15 +89,34 @@ yeni imaj `docker compose up` ile değil, adım adım başlatılır.
 
 ## LDAP girişinde dikkat
 
-- LDAP'ta her kullanıcının `mail` alanı dolu olmalı; boşsa giriş "email is required"
-  ile düşer.
-- Plugin login formunu `Origin`/`Referer` başlığıyla doğrular: nginx `Host`'u
-  korumalı, Admin > Genel'deki site adresi `https://forum.egmidb.gov.tr` olmalı.
-- `connector-ldap` henüz release almadı; `plugin_list`'te commit'e sabitli.
-- Form `/answer/api/v1/connector/redirect/ldap`'a POST eder. Upstream bu yolu
-  yalnız GET olarak tanımlıyordu, POST SPA'ya düşüp "You need to enable
-  JavaScript" dönüyordu; fork POST route'unu ekler. Hatalı sicil/parola
-  `/users/login?error=ldap`'a döner.
+- Form `/answer/api/v1/connector/redirect/ldap`'a POST eder (fork bu route'u ekler).
+  İstek sitenin kendisinden gelmeli: `Origin`, Admin > Genel'deki site adresiyle ya
+  da isteğin `Host` başlığıyla aynı host'ta olmalı. nginx `proxy_set_header Host
+  $host;` ile `Host`'u korumalı. Başarılı girişten sonra kullanıcı site adresine
+  yönlendirilir; site adresi `https://forum.egmidb.gov.tr` olmalı.
+- Giriş düşerse form nedeni söyler ve `docker logs answer 2>&1 | grep -i ldap`
+  ayrıntıyı verir (parolalar log'a yazılmaz):
+
+  | Kod | Anlamı | Bakılacak yer |
+  |---|---|---|
+  | (kodsuz) | Sicil LDAP'ta yok ya da parola yanlış | Kullanıcı alanı, Base DN |
+  | `connect` | Sunucuya ulaşılamadı (5 sn) | adres, port, konteynerden DNS, güvenlik duvarı |
+  | `tls` | TLS kurulamadı | Bağlantı güvenliği, Sertifika doğrulaması, CA dosyası |
+  | `bind` | Servis hesabı reddedildi | Bind DN, Bind parolası |
+  | `search` | Arama hatası | Base DN, servis hesabının okuma yetkisi, çift sicil |
+  | `mail` | Kayıtta `mail` yok | E-posta alan adı |
+  | `identity` | Dış kimlik alanı boş | Dış kimlik alanı |
+  | `config` | Zorunlu ayar boş ya da adres hatalı | eklenti ayarları |
+  | `origin` | İstek başka adresten geldi | site adresi, nginx `Host` |
+  | `account` | LDAP'taki e-posta başka bir hesapta ya da hesap kapalı | `sql/10`, Admin > Kullanıcılar |
+  | `internal` | Hesap oluşturulamadı | `docker logs`, veritabanı |
+
+- `account`: Answer, tanımadığı bir sicil forumda zaten kayıtlı bir e-postayla
+  gelirse girişi reddeder. Keycloak'tan gelen hesapları `sql/10` sicille eşler;
+  eşlenmemiş hesap için o kullanıcıya `user_external_login`'de `provider='ldap'`,
+  `external_id=<sicil>` satırı eklenir.
+- Konteyner LDAP sunucusunun adını çözemiyorsa compose'a `extra_hosts` ya da `dns`
+  eklenir, ya da adres IP ile yazılıp sertifika doğrulaması kapatılır.
 - Gravatar intranetten erişilemediği için kapalıdır: seçenek arayüzden kaldırıldı,
   veritabanında kalmış bir gravatar seçimi de `system` avatar olarak gösterilir.
 - Geri dönüş: OAuth2 Temel yeniden açılır, `basic` satırları yerinde duruyor.
@@ -120,8 +149,8 @@ docker compose -f deploy/ib/docker-compose.yaml build
 docker save ib/answer:2.0.3-ib.1 | gzip > ib-answer-2.0.3-ib.1.tar.gz
 ```
 
-`script/plugin_list` connector-basic, connector-ldap, reviewer-basic, captcha-basic, quick-links ve
-`plugins/ib-hook`'u içerir. Build internet ister (Go ve npm modülleri); bu yüzden
+`script/plugin_list` connector-basic, reviewer-basic, captcha-basic, quick-links ile repodaki
+`plugins/ib-ldap` ve `plugins/ib-hook`'u içerir. Build internet ister (Go ve npm modülleri); bu yüzden
 VPS'te yapılır, sunucuya yalnız imaj gider.
 
 ## Yeni upstream sürümüne geçiş
@@ -138,7 +167,12 @@ Fork'taki değişiklikler küçük ve ayrı dosyalarda tutulur:
   `plugin_api_router.go`'da LDAP POST route'u.
 - Tema: `ui/src/common/_ib-variables.scss` ve `ib-theme.scss` (lacivert/altın),
   arayüz metinleri `// ib:` yorumuyla işaretli.
-- `plugins/ib-hook/` (ayrı Go modülü), `deploy/ib/`, `script/plugin_list`'te bir satır.
+- `plugins/ib-hook/` ve `plugins/ib-ldap/` (ayrı Go modülleri), `deploy/ib/`,
+  `script/plugin_list`'te iki satır. `ib-ldap`, upstream `connector-ldap`'tan türedi
+  ve onun yerine kullanılır (upstream şifresiz LDAP'ı, IP adresini ve iç CA'yı
+  dosyasız kabul etmiyor, hatanın nedenini de vermiyordu).
+- `internal/migrations/init.go` `SyncIDSequencesSQL`: yeni PostgreSQL kurulumunda
+  id sıralarını düzeltir.
 
 Yol: yeni etiketten `ib/vX.Y.Z` dalı açılır, bu commit'ler cherry-pick edilir,
 `go test ./i18n/ ./plugins/ib-hook/...` yeşil olana kadar çeviri tamamlanır.

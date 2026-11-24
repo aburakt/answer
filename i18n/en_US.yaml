@@ -1257,8 +1257,20 @@ ui:
         label: Registry number
         msg:
           empty: Registry number cannot be empty.
-      error: Registry number or password is incorrect.
       unavailable: LDAP login is not enabled yet. Please contact the site administrator.
+      reason:
+        credentials: "Wrong registry number or password."
+        mail: "Your LDAP entry has no email address. Contact the site administrator."
+        account: "Your LDAP email belongs to another forum account, or your account is closed. Contact the site administrator."
+        connect: "Sign-in is unavailable: the LDAP server cannot be reached. (code: connect)"
+        tls: "Sign-in is unavailable: no secure connection to the LDAP server. (code: tls)"
+        bind: "Sign-in is unavailable: the LDAP service account was rejected. (code: bind)"
+        search: "Sign-in is unavailable: the LDAP search failed. (code: search)"
+        config: "Sign-in is unavailable: LDAP settings are incomplete. (code: config)"
+        identity: "Sign-in is unavailable: your LDAP entry lacks the identity attribute. (code: identity)"
+        origin: "Sign-in was rejected: the site address does not match the address in your browser. (code: origin)"
+        internal: "Sign-in failed while creating your account. Try again; contact the administrator if it repeats. (code: internal)"
+        unknown: "Sign-in failed. Contact the site administrator. (code: unknown)"
     admin_title: Administrator login
     name:
       label: Name

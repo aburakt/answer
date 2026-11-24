@@ -36,6 +36,7 @@ import (
 	"github.com/apache/answer/internal/entity"
 	"golang.org/x/crypto/bcrypt"
 	"xorm.io/xorm"
+	"xorm.io/xorm/schemas"
 )
 
 type Mentor struct {
@@ -89,7 +90,36 @@ func (m *Mentor) InitDB() error {
 	m.do("init default badges", m.initDefaultBadges)
 	m.do("init default ai config", m.initSiteInfoAI)
 	m.do("init default MCP config", m.initSiteInfoMCP)
+	m.do("sync id sequences", m.syncIDSequences)
 	return m.err
+}
+
+// SyncIDSequencesSQL ib: PostgreSQL'de id sıralarını tablodaki en büyük id'ye çeker.
+// Kurulum yönetici kullanıcıyı (ve rolleri, ayarları) id'sini elle vererek ekler,
+// sıra ise 1'de kalır; kurulumdan sonraki ilk kayıt (ör. LDAP'tan gelen ilk
+// kullanıcı) "duplicate key ... user_pkey" ile düşer. Sıra hiçbir zaman geri alınmaz.
+const SyncIDSequencesSQL = `DO $$
+DECLARE r record; m bigint;
+BEGIN
+  FOR r IN
+    SELECT c.table_name AS t, pg_get_serial_sequence(quote_ident(c.table_name), 'id') AS s
+    FROM information_schema.columns c
+    WHERE c.table_schema = current_schema() AND c.column_name = 'id'
+  LOOP
+    IF r.s IS NOT NULL THEN
+      EXECUTE format('SELECT max(id) FROM %I', r.t) INTO m;
+      IF m IS NOT NULL THEN
+        EXECUTE format('SELECT setval(%L, greatest(%s, last_value)) FROM %s', r.s, m, r.s);
+      END IF;
+    END IF;
+  END LOOP;
+END $$`
+
+func (m *Mentor) syncIDSequences() {
+	if m.engine.Dialect().URI().DBType != schemas.POSTGRES {
+		return
+	}
+	_, m.err = m.engine.Context(m.ctx).Exec(SyncIDSequencesSQL)
 }
 
 func (m *Mentor) do(taskName string, fn func()) {

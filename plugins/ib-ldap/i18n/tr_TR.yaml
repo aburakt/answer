@@ -1,0 +1,128 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+plugin:
+  ldap_connector:
+    backend:
+      name:
+        other: LDAP
+      info:
+        name:
+          other: LDAP girişi
+        description:
+          other: Kurum LDAP'ı (Active Directory) ile sicil ve parola girişi
+      security:
+        tls:
+          other: Şifreli (ldaps:// için TLS, ldap:// için StartTLS)
+        none:
+          other: Şifresiz (yalnız ldap://)
+      config:
+        name:
+          title:
+            other: Ad
+          description:
+            other: Bağlayıcının görünen adı. Boş bırakılabilir.
+        server:
+          title:
+            other: LDAP sunucusu
+          description:
+            other: ör. ldaps://dc1.kurum.local:636 ya da ldap://10.0.0.5:389. Şema yazılmazsa ldap:// sayılır.
+        security:
+          title:
+            other: Bağlantı güvenliği
+          description:
+            other: ldap:// adresinde StartTLS denenir. Sunucu TLS desteklemiyorsa "Şifresiz" seçilir; parolalar ağda açık gider.
+        tls_skip_verify:
+          title:
+            other: Sertifika doğrulaması
+          description:
+            other: Sunucu IP adresiyle yazıldıysa ya da sertifikası kurum içi bir CA'dan geliyorsa ve CA dosyası yoksa açılır. Bağlantı yine şifrelidir.
+          label:
+            other: Sunucu sertifikasını doğrulama
+        tls_ca_cert_path:
+          title:
+            other: CA sertifika dosyası
+          description:
+            other: Kurum içi CA'nın PEM dosyası, konteyner içindeki yoluyla (ör. /data/ldap-ca.pem). Boş bırakılabilir.
+        base_dn:
+          title:
+            other: Base DN
+          description:
+            other: Kullanıcıların aranacağı kök, ör. DC=kurum,DC=local
+        bind_dn:
+          title:
+            other: Bind DN
+          description:
+            other: Arama yapan salt okunur servis hesabı. DN, kullanici@alan ya da ALAN\kullanici biçiminde yazılabilir.
+        bind_password:
+          title:
+            other: Bind parolası
+          description:
+            other: Servis hesabının parolası
+        user_attr:
+          title:
+            other: Kullanıcı alanı
+          description:
+            other: Giriş ekranına yazılan sicilin LDAP'taki alanı (Active Directory'de sAMAccountName)
+        external_id_attr:
+          title:
+            other: Dış kimlik alanı
+          description:
+            other: Kullanıcıyı girişler arasında tanıyan sabit alan. Sicili veren alan kullanılır (sAMAccountName); eski hesaplar bu değerle eşlendi.
+        mail_domain:
+          title:
+            other: E-posta alan adı
+          description:
+            other: LDAP kaydında mail alanı boşsa e-posta sicil@alan-adı olarak üretilir, ör. egmidb.gov.tr. Boş bırakılırsa e-postası olmayan kullanıcı giremez.
+        test_user:
+          title:
+            other: Deneme sicili
+          description:
+            other: Bağlantı denemesinde aranacak sicil. Parola gerekmez. Boş bırakılabilir.
+        test:
+          title:
+            other: Bağlantı denemesi
+          description:
+            other: Kayıtlı ayarla sunucuya bağlanır, servis hesabını ve deneme sicilini sınar. Önce Kaydet'e basın.
+          label:
+            other: Bağlantıyı dene
+      test:
+        ok:
+          other: LDAP bağlantısı ve servis hesabı çalışıyor.
+        user_ok:
+          other: 'Bulunan kayıt: %s'
+        failed:
+          other: LDAP denemesi başarısız.
+      reason:
+        credentials:
+          other: Sicil bulunamadı ya da parola yanlış.
+        config:
+          other: Eklenti ayarı eksik ya da hatalı.
+        connect:
+          other: LDAP sunucusuna ulaşılamadı (adres, port, DNS ya da güvenlik duvarı).
+        tls:
+          other: Şifreli bağlantı kurulamadı (sertifika doğrulanamadı ya da sunucu TLS desteklemiyor).
+        bind:
+          other: Servis hesabı reddedildi (Bind DN ya da parolası).
+        search:
+          other: Arama başarısız (Base DN, servis hesabının yetkisi ya da aynı sicilden birden fazla kayıt).
+        mail:
+          other: Kayıtta e-posta yok ve e-posta alan adı ayarlanmamış.
+        identity:
+          other: Kayıtta dış kimlik alanı boş.
+        origin:
+          other: İstek sitenin kendi adresinden gelmedi (Yönetim > Genel'deki site adresi ve proxy'nin Host başlığı).
