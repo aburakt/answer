@@ -325,3 +325,23 @@ footer {
   border-color: var(--bs-border-color);
   background-color: var(--ib-surface);
 }
+
+// Koyu temada lacivert çerçeveli düğme zeminde kaybolur: altın çerçeve.
+// (`html` özgüllüğü: CustomizeTheme aynı değişkenleri sonradan enjekte eder.)
+html[data-bs-theme='dark'] .btn-outline-primary {
+  --bs-btn-color: #ecdcbd;
+  --bs-btn-border-color: var(--ib-gold);
+  --bs-btn-hover-color: var(--ib-navy);
+  --bs-btn-hover-bg: var(--ib-gold);
+  --bs-btn-hover-border-color: var(--ib-gold);
+  --bs-btn-active-color: var(--ib-navy);
+  --bs-btn-active-bg: var(--ib-gold);
+  --bs-btn-active-border-color: var(--ib-gold);
+}
+
+html[data-bs-theme='dark'] .pagination {
+  --bs-pagination-color: #c3d2f6;
+  --bs-pagination-hover-color: #fff;
+  --bs-pagination-focus-color: #fff;
+  --bs-pagination-active-border-color: var(--ib-gold);
+}
