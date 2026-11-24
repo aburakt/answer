@@ -551,7 +551,7 @@ backend:
     default_badges:
       autobiographer:
         name:
-          other: İstihbaratçı
+          other: Bilirkişi
         desc:
           other: <a href="{{ .ProfileURL }}" target="_blank">Profil</a> bilgilerini doldurdu.
       certified:
@@ -591,7 +591,7 @@ backend:
           other: İlk kez bir gönderi paylaştı.
       scholar:
         name:
-          other: Bilirkişi
+          other: İstihbaratçı
         desc:
           other: Bir soru sordu ve bir cevabı kabul etti.
       commentator:
@@ -1237,6 +1237,10 @@ ui:
         label: Sicil
         msg:
           empty: Sicil boş olamaz.
+          format: Sicil 6 ya da 7 haneli bir sayı olmalıdır.
+      password:
+        show: Parolayı göster
+        hide: Parolayı gizle
       unavailable: LDAP girişi henüz açılmadı. Site yöneticisine başvurun.
       reason:
         credentials: "Sicil ya da parola hatalı."
@@ -1333,6 +1337,7 @@ ui:
       username:
         label: Kullanıcı adı
         caption: İnsanlar size "@kullaniciadi" şeklinde bahsedebilir.
+        locked: Kullanıcı adınız LDAP'tan gelir ve değiştirilemez.
         msg: Kullanıcı adı boş olamaz.
         msg_range: Kullanıcı adı 2-30 karakter uzunluğunda olmalıdır.
         character: "Yalnızca \"a-z\", \"0-9\", \"- . _\" karakterleri kullanılabilir"
@@ -1344,6 +1349,7 @@ ui:
         custom_text: Kendi resminizi yükleyebilirsiniz.
         default: Sistem
         msg: Lütfen bir avatar yükleyin
+        locked: Profil resminiz personel kaydınızdan gelir ve değiştirilemez.
       bio:
         label: Hakkımda
       website:

@@ -43,6 +43,9 @@ const Index: React.FC = () => {
   const { user, update } = loggedUserInfoStore();
   const { agent: ucAgent } = userCenterStore();
   const { users: usersSettings } = siteInfoStore();
+  // ib: kullanıcı adı LDAP'tan, profil resmi personel kaydından gelir; yalnız
+  // site yöneticisi (role_id 2) değiştirebilir. Sunucu da aynı kuralı uygular.
+  const profileLocked = user.role_id !== 2;
   const [mailHash, setMailHash] = useState('');
   const [count] = useState(0);
   const [profileAgent, setProfileAgent] = useState<UcSettingAgent>();
@@ -333,6 +336,7 @@ const Index: React.FC = () => {
               type="text"
               value={formData.username.value}
               isInvalid={formData.username.isInvalid}
+              disabled={profileLocked}
               onChange={(e) =>
                 handleChange({
                   username: {
@@ -343,13 +347,33 @@ const Index: React.FC = () => {
                 })
               }
             />
-            <Form.Text as="div">{t('username.caption')}</Form.Text>
+            <Form.Text as="div">
+              {t(profileLocked ? 'username.locked' : 'username.caption')}
+            </Form.Text>
             <Form.Control.Feedback type="invalid">
               {formData.username.errorMsg}
             </Form.Control.Feedback>
           </Form.Group>
 
-          <Form.Group controlId="avatar" className="mb-3">
+          {profileLocked && (
+            <div className="mb-3">
+              <div className="form-label">{t('avatar.label')}</div>
+              <Avatar
+                size="160px"
+                searchStr="s=256"
+                avatar={
+                  formData.avatar.type === 'custom'
+                    ? formData.avatar.custom
+                    : ''
+                }
+                alt={formData.display_name.value}
+              />
+              <Form.Text as="div">{t('avatar.locked')}</Form.Text>
+            </div>
+          )}
+          <Form.Group
+            controlId="avatar"
+            className={profileLocked ? 'd-none' : 'mb-3'}>
             <Form.Label>{t('avatar.label')}</Form.Label>
             <div className="mb-3">
               <Form.Select

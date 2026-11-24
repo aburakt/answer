@@ -23,6 +23,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/apache/answer/internal/base/constant"
@@ -309,6 +310,28 @@ func (us *UserExternalLoginService) bindOldUser(ctx context.Context,
 	return err
 }
 
+// syncUsername sets the user's username to the one the connector reports, when
+// it is valid and not taken by somebody else. Failures only log: a login must
+// not fail over a username.
+func (us *UserExternalLoginService) syncUsername(ctx context.Context, user *entity.User, external string) {
+	username := strings.ToLower(strings.TrimSpace(external))
+	if username == "" || username == user.Username ||
+		checker.IsInvalidUsername(username) || checker.IsReservedUsername(username) {
+		return
+	}
+	_, taken, err := us.userRepo.GetByUsername(ctx, username)
+	if err != nil || taken {
+		if err != nil {
+			log.Error(err)
+		}
+		return
+	}
+	user.Username = username
+	if err = us.userRepo.UpdateInfo(ctx, user); err != nil {
+		log.Error(err)
+	}
+}
+
 func (us *UserExternalLoginService) activeUser(ctx context.Context, oldUserInfo *entity.User,
 	externalUserInfo *schema.ExternalLoginUserInfoCache) (
 	mailStatus int, err error) {
@@ -323,17 +346,25 @@ func (us *UserExternalLoginService) activeUser(ctx context.Context, oldUserInfo 
 		}
 	}
 
-	// try to update user avatar
-	if oldUserInfo.Avatar == "" && len(externalUserInfo.Avatar) > 0 {
+	// ib: the username follows the directory. Users cannot change it
+	// themselves, so a rename in LDAP is picked up at the next login.
+	us.syncUsername(ctx, oldUserInfo, externalUserInfo.Username)
+
+	// ib: the avatar follows the connector too (upstream only fills an empty
+	// one). Users cannot change it, so every login refreshes it; a login without
+	// an avatar keeps the stored one.
+	if len(externalUserInfo.Avatar) > 0 {
 		avatarInfo := &schema.AvatarInfo{
 			Type:   constant.AvatarTypeCustom,
 			Custom: externalUserInfo.Avatar,
 		}
 		avatar, _ := json.Marshal(avatarInfo)
-		oldUserInfo.Avatar = string(avatar)
-		err = us.userRepo.UpdateInfo(ctx, oldUserInfo)
-		if err != nil {
-			log.Error(err)
+		if oldUserInfo.Avatar != string(avatar) {
+			oldUserInfo.Avatar = string(avatar)
+			err = us.userRepo.UpdateInfo(ctx, oldUserInfo)
+			if err != nil {
+				log.Error(err)
+			}
 		}
 	}
 

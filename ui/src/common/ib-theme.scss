@@ -137,9 +137,79 @@ html:root[data-bs-theme='dark'] {
   color: var(--ib-gold);
 }
 
-// Üst bar: beyaz zemin (logo koyu yazılı), altın alt çizgi.
+// Üst bar: açık temada beyaz, koyu temada lacivert; altın alt çizgi.
 #header {
   border-bottom: 3px solid var(--ib-gold);
+
+  .ib-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--ib-navy);
+  }
+
+  .ib-brand-emblem {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .ib-brand-text {
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.2rem;
+    line-height: 1;
+  }
+
+  .ib-brand-title {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  .ib-brand-sub {
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.42em;
+    color: var(--ib-gold-text);
+  }
+
+  &.theme-dark .ib-brand {
+    color: #fff;
+  }
+
+  // "Soru Oluştur": altın kenarlı düğme; üzerine gelince dolar.
+  .nav-link.ib-create {
+    padding: 0.375rem 0.875rem;
+    border: 1px solid var(--ib-gold);
+    border-radius: var(--bs-border-radius);
+    color: var(--ib-navy);
+    font-weight: 500;
+    transition:
+      background-color 0.15s ease-in-out,
+      color 0.15s ease-in-out;
+
+    &:hover,
+    &:focus-visible {
+      background-color: var(--ib-navy);
+      border-color: var(--ib-navy);
+      color: #fff;
+    }
+  }
+
+  &.theme-dark .nav-link.ib-create {
+    color: #fff;
+
+    &:hover,
+    &:focus-visible {
+      background-color: var(--ib-gold);
+      border-color: var(--ib-gold);
+      color: var(--ib-navy);
+    }
+  }
+
+  &.theme-dark .ib-brand-sub {
+    color: #dcc08c;
+  }
 
   &.theme-light .placeholder-search {
     background-color: rgba(var(--ib-navy-rgb), 0.05);
@@ -191,4 +261,67 @@ footer {
 // Koyu temada lacivert düğme zeminle kaynaşır; altın kenar ayırır.
 [data-bs-theme='dark'] .btn-primary {
   border-color: var(--ib-gold);
+}
+
+// Rozet seviyeleri: parlak turuncu/sarı yerine logo paletine yakın metal tonları.
+.bronze {
+  color: #a5683a;
+}
+
+.silver {
+  color: #8592ad;
+}
+
+.gold {
+  color: var(--ib-gold);
+}
+
+:root[data-bs-theme='dark'] {
+  .bronze {
+    color: #c08552;
+  }
+
+  .silver {
+    color: #a9b4cc;
+  }
+}
+
+// Giriş ekranı: amblem ve başlık, altın üst çizgili kart.
+.ib-login {
+  padding: 2rem 2rem 2.25rem;
+  border-top: 3px solid var(--ib-gold);
+  box-shadow: 0 0.5rem 1.5rem rgba(var(--ib-navy-rgb), 0.08);
+}
+
+.ib-login-brand {
+  margin-bottom: 1.75rem;
+  text-align: center;
+
+  img {
+    margin-bottom: 1rem;
+  }
+}
+
+.ib-login-title {
+  margin: 0 0 0.4rem;
+  color: var(--ib-navy);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.ib-login-sub {
+  color: var(--ib-gold-text);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.42em;
+}
+
+:root[data-bs-theme='dark'] .ib-login-title {
+  color: #fff;
+}
+
+.ib-password-toggle {
+  border-color: var(--bs-border-color);
+  background-color: var(--ib-surface);
 }

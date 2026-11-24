@@ -37,10 +37,15 @@ UPDATE site_info SET content = jsonb_set(jsonb_set(content::jsonb,
     '{theme_config,default,primary_color}', '"#061c5f"'),
     '{theme_config,default,navbar_style}', '"#ffffff"')::text
 WHERE type = 'theme';
--- Rozet ikonları: "Bilirkişi" (scholar) ve "İstihbaratçı" (autobiographer). Adlar
+-- Logo: uygulama amblemi ve yazıyı kendisi çizer, yazı rengi açık/koyu temaya göre
+-- değişir. Yüklenmiş eski logo (koyu yazılı PNG) bunu ezdiği için temizlenir; dosya
+-- uploads/branding altında kalır, Yönetim > Marka'dan yeniden seçilebilir.
+UPDATE site_info SET content = (content::jsonb || '{"logo": "", "mobile_logo": ""}'::jsonb)::text
+WHERE type = 'branding';
+-- Rozet ikonları: "İstihbaratçı" (scholar) ve "Bilirkişi" (autobiographer). Adlar
 -- çeviri dosyasından gelir; ikon tabloda durur, bu yüzden burada da güncellenir.
-UPDATE badge SET icon = 'mortarboard-fill' WHERE name = 'badge.default_badges.scholar.name';
-UPDATE badge SET icon = 'incognito' WHERE name = 'badge.default_badges.autobiographer.name';
+UPDATE badge SET icon = 'incognito' WHERE name = 'badge.default_badges.scholar.name';
+UPDATE badge SET icon = 'mortarboard-fill' WHERE name = 'badge.default_badges.autobiographer.name';
 -- id sıraları: kurulumun elle verdiği id'ler (yönetici = 1) sırayı ilerletmez; yeni
 -- kurulmuş bir veritabanında ilk LDAP kullanıcısı "duplicate key ... user_pkey" ile
 -- düşer. Sıra tablodaki en büyük id'ye çekilir, hiçbir zaman geri alınmaz.

@@ -93,6 +93,16 @@ plugin:
             other: Deneme sicili
           description:
             other: Bağlantı denemesinde aranacak sicil. Parola gerekmez. Boş bırakılabilir.
+        photo_url:
+          title:
+            other: "Profil resmi için YAPI URL'si"
+          description:
+            other: "Doluysa girişte profil resmi giris'teki istekle YAPI'den alınır (get_foto_from_redis_by_sicil). Örnek: https://giris.ornek.gov.tr/yapi. Boşsa profil resmi alınmaz."
+        photo_app:
+          title:
+            other: "YAPI uygulama adı"
+          description:
+            other: "YAPI oturumu açılırken gönderilen application değeri. Boşsa GIRIS_DASHBOARD."
         test:
           title:
             other: Bağlantı denemesi

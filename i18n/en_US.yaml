@@ -1257,6 +1257,10 @@ ui:
         label: Registry number
         msg:
           empty: Registry number cannot be empty.
+          format: Registry number must be 6 or 7 digits.
+      password:
+        show: Show password
+        hide: Hide password
       unavailable: LDAP login is not enabled yet. Please contact the site administrator.
       reason:
         credentials: "Wrong registry number or password."
@@ -1357,6 +1361,7 @@ ui:
       username:
         label: Username
         caption: People can mention you as "@username".
+        locked: Your username comes from the directory and cannot be changed.
         msg: Username cannot be empty.
         msg_range: Username must be 2-30 characters in length.
         character: 'Must use the character set "a-z", "0-9", "- . _"'
@@ -1368,6 +1373,7 @@ ui:
         custom_text: You can upload your image.
         default: System
         msg: Please upload an avatar
+        locked: Your profile image comes from your personnel record and cannot be changed.
       bio:
         label: About me
       website:

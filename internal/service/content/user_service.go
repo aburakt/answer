@@ -322,6 +322,13 @@ func (us *UserService) UserModifyPassword(ctx context.Context, req *schema.UserM
 // UpdateInfo update user info
 func (us *UserService) UpdateInfo(ctx context.Context, req *schema.UpdateInfoRequest) (
 	errFields []*validator.FormErrorField, err error) {
+	// ib: the username is the directory (LDAP) username and the avatar is the
+	// personnel photo. Only the site admin may change them; from anyone else
+	// both fields are ignored, whatever the client sends.
+	profileLocked := !req.IsSiteAdmin
+	if profileLocked {
+		req.Username = ""
+	}
 	if len(req.Username) > 0 {
 		if checker.IsInvalidUsername(req.Username) {
 			return append(errFields, &validator.FormErrorField{
@@ -361,9 +368,11 @@ func (us *UserService) UpdateInfo(ctx context.Context, req *schema.UpdateInfoReq
 	if !exist {
 		return nil, errors.BadRequest(reason.UserNotFound)
 	}
-	errFields, err = us.validateAvatarInfo(ctx, req.UserID, oldUserInfo.Avatar, req.Avatar)
-	if err != nil {
-		return errFields, err
+	if !profileLocked {
+		errFields, err = us.validateAvatarInfo(ctx, req.UserID, oldUserInfo.Avatar, req.Avatar)
+		if err != nil {
+			return errFields, err
+		}
 	}
 
 	cond := us.formatUserInfoForUpdateInfo(oldUserInfo, req)
@@ -483,6 +492,12 @@ func (us *UserService) formatUserInfoForUpdateInfo(
 	userInfo.BioHTML = req.BioHTML
 	userInfo.Website = req.Website
 	userInfo.Location = req.Location
+	// ib: see UpdateInfo. Whatever the request carries, a non-admin keeps the
+	// stored username and avatar.
+	if !req.IsSiteAdmin {
+		userInfo.Username = oldUserInfo.Username
+		userInfo.Avatar = oldUserInfo.Avatar
+	}
 	return userInfo
 }
 

@@ -269,6 +269,9 @@ type UpdateInfoRequest struct {
 	Location    string     `validate:"omitempty,gt=0,lte=100" json:"location"`
 	UserID      string     `json:"-"`
 	IsAdmin     bool       `json:"-"`
+	// ib: only the site admin may change a username or avatar; for everyone
+	// else both come from the directory.
+	IsSiteAdmin bool `json:"-"`
 }
 
 type AvatarInfo struct {
