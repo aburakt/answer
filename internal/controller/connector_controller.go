@@ -352,7 +352,7 @@ func loginErrorCode(err error) string {
 	return "unknown"
 }
 
-// ib: POST ile gelen (form tabanlı) girişte hatayı login formuna taşır. Adres görelidir:
+// ib: POST ile gelen (form tabanlı) girişte hatayı login formuna taşır. Yönlendirme görelidir:
 // site adresi ayarı yanlış olsa da kullanıcı geldiği sitede kalır. GET akışına dokunmaz.
 func redirectFormLoginError(ctx *gin.Context, connector plugin.Connector, code string) bool {
 	if ctx.Request.Method != http.MethodPost {
