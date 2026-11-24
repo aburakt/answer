@@ -358,17 +358,21 @@ const Index: React.FC = () => {
           {profileLocked && (
             <div className="mb-3">
               <div className="form-label">{t('avatar.label')}</div>
-              <Avatar
-                size="160px"
-                searchStr="s=256"
-                avatar={
-                  formData.avatar.type === 'custom'
-                    ? formData.avatar.custom
-                    : ''
-                }
-                alt={formData.display_name.value}
-              />
-              <Form.Text as="div">{t('avatar.locked')}</Form.Text>
+              <div>
+                <Avatar
+                  size="160px"
+                  searchStr="s=256"
+                  avatar={
+                    formData.avatar.type === 'custom'
+                      ? formData.avatar.custom
+                      : ''
+                  }
+                  alt={formData.display_name.value}
+                />
+              </div>
+              <Form.Text as="div" className="d-block mt-2">
+                {t('avatar.locked')}
+              </Form.Text>
             </div>
           )}
           <Form.Group

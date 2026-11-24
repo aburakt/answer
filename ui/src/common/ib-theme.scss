@@ -471,3 +471,19 @@ html[data-bs-theme='dark'] .btn-reaction.link-secondary {
     color: #061c5f;
   }
 }
+
+// Ayarlar gibi sayfalardaki hap menüler: dolu lacivert yerine sol menüyle
+// aynı sakin seçili görünüm. `html` öneki: CustomizeTheme aynı değişkeni
+// sayfaya sonradan basıyor.
+html .nav-pills {
+  --bs-nav-pills-link-active-bg: var(--ib-nav-active-bg);
+  --bs-nav-pills-link-active-color: var(--ib-navy);
+
+  .nav-link.active {
+    font-weight: 500;
+  }
+}
+
+html[data-bs-theme='dark'] .nav-pills {
+  --bs-nav-pills-link-active-color: #f0e2c4;
+}
