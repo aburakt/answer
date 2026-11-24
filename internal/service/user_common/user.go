@@ -190,6 +190,11 @@ func (us *UserCommon) FormatUserBasicInfo(ctx context.Context, userInfo *entity.
 	return userBasicInfo
 }
 
+var turkishToASCII = strings.NewReplacer(
+	"ç", "c", "Ç", "c", "ğ", "g", "Ğ", "g", "ı", "i", "İ", "i",
+	"ö", "o", "Ö", "o", "ş", "s", "Ş", "s", "ü", "u", "Ü", "u",
+)
+
 // MakeUsername
 // Generate a unique Username based on the displayName
 func (us *UserCommon) MakeUsername(ctx context.Context, displayName string) (username string, err error) {
@@ -198,7 +203,10 @@ func (us *UserCommon) MakeUsername(ctx context.Context, displayName string) (use
 		displayName = strings.Join(pinyin.LazyConvert(displayName, nil), "")
 	}
 
-	username = strings.ReplaceAll(displayName, " ", "-")
+	// ib: Turkish letters are not valid in a username; without this an
+	// administrator cannot add a user whose name has one ("Kılavuz").
+	username = turkishToASCII.Replace(displayName)
+	username = strings.ReplaceAll(username, " ", "-")
 	username = strings.ToLower(username)
 	suffix := ""
 
