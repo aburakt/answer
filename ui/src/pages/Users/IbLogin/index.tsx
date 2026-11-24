@@ -34,7 +34,7 @@ import { useTranslation } from 'react-i18next';
 
 import { usePageTags } from '@/hooks';
 import { Icon, PluginRender } from '@/components';
-import IbAmblem from '@/assets/images/ib-amblem.png';
+import IbLogo from '@/assets/images/ib-logo.svg';
 import { PluginType } from '@/utils/pluginKit';
 import { useGetStartUseOauthConnector } from '@/plugins/builtin/ThirdPartyConnector/services';
 
@@ -92,7 +92,7 @@ const Index: React.FC = () => {
     <Container style={{ paddingTop: '3rem', paddingBottom: '5rem' }}>
       <Col className="mx-auto ib-login card" sm={10} md={7} lg={5} xl={4}>
         <div className="ib-login-brand">
-          <img src={IbAmblem} alt="" width={104} height={104} />
+          <img src={IbLogo} alt="" width={104} height={104} />
           <h1 className="ib-login-title">İSTİHBARAT BAŞKANLIĞI</h1>
           <div className="ib-login-sub">FORUM UYGULAMASI</div>
         </div>

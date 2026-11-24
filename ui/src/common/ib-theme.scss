@@ -378,3 +378,53 @@ html[data-bs-theme='dark'] .pagination {
   --bs-pagination-focus-color: #fff;
   --bs-pagination-active-border-color: var(--ib-gold);
 }
+
+// İkincil (gri) yazı ve düğmeler: Bootstrap grisi (#6c757d) lacivert zeminde
+// okunmuyor, açık zeminde de sınırda. İki temada da 4.5:1 üstü tonlar.
+:root {
+  --ib-muted: #59626e;
+}
+
+:root[data-bs-theme='dark'] {
+  --ib-muted: #a3b0cb;
+}
+
+.text-secondary,
+.link-secondary {
+  color: var(--ib-muted) !important;
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: var(--ib-muted);
+  --bs-btn-border-color: var(--ib-muted);
+}
+
+.btn-outline-success {
+  --bs-btn-color: #146c43;
+  --bs-btn-border-color: #146c43;
+}
+
+[data-bs-theme='dark'] {
+  .btn-outline-secondary {
+    --bs-btn-hover-bg: #3a4a6b;
+    --bs-btn-hover-border-color: #3a4a6b;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-active-bg: #3a4a6b;
+    --bs-btn-active-border-color: #3a4a6b;
+    --bs-btn-active-color: #fff;
+  }
+
+  .btn-outline-success {
+    --bs-btn-color: #5fce98;
+    --bs-btn-border-color: #5fce98;
+  }
+}
+
+// Soru altındaki "Yorum ekle" ve tepki hapları: dolgulu zeminde gövde rengi.
+.btn-reaction.link-secondary {
+  color: var(--bs-body-color) !important;
+}
+
+html[data-bs-theme='dark'] .btn-reaction.link-secondary {
+  color: #fff !important;
+}
