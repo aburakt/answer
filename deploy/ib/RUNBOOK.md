@@ -16,7 +16,7 @@ Yerel PostgreSQL 16 üzerinde, 1.6.0 kurulumu + Keycloak biçiminde üç kullan�
 | `answer upgrade` (2.0.3) | 28 → 36, 8 migration, hata yok, 0,1 sn |
 | `site_info` diff'i | ayarlar yeni anahtarlara bölündü; eklenenler aşağıda |
 | `sql/10-keycloak-to-ldap.sql` | 3 Keycloak hesabına sicilli `ldap` satırı eklendi; ikinci çalıştırmada yeni satır yok (PostgreSQL 16, 18 Kasım) |
-| `sql/20-site-settings.sql` | e-posta doğrulama zorunluluğu kapandı, avatar `system`, kayıt kapandı, tema lacivert (23 Kasım), id sıraları düzeltildi (24 Kasım) |
+| `sql/20-site-settings.sql` | e-posta doğrulama zorunluluğu kapandı, avatar `system`, kayıt kapandı, ana renk lacivert (23 Kasım), id sıraları düzeltildi, üst bar beyaz, iki rozet ikonu (24 Kasım) |
 | LDAP girişi (24 Kasım) | gerçek build + nginx (TLS) + PostgreSQL 16 + Samba Active Directory ile uçtan uca: ldaps, StartTLS, şifresiz, IP adresi, iç CA, hatalı ayarlar, e-postasız ve pasif hesaplar |
 | `answer run` + `/answer/api/v1/siteinfo` | 200 |
 | `pg_restore` ile geri dönüş | `version` = 28, eski kayıtlar geri geldi |

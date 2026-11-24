@@ -365,7 +365,7 @@ var (
 	defaultBadgeTable = []*entity.Badge{
 		{
 			Name:         "badge.default_badges.autobiographer.name",
-			Icon:         "person-badge-fill",
+			Icon:         "incognito", // ib: tr_TR adı "İstihbaratçı"
 			Description:  "badge.default_badges.autobiographer.desc",
 			Status:       entity.BadgeStatusActive,
 			BadgeGroupID: 1,
@@ -425,7 +425,7 @@ var (
 		},
 		{
 			Name:         "badge.default_badges.scholar.name",
-			Icon:         "check-circle-fill",
+			Icon:         "mortarboard-fill", // ib: tr_TR adı "Bilirkişi"
 			Description:  "badge.default_badges.scholar.desc",
 			Status:       entity.BadgeStatusActive,
 			BadgeGroupID: 1,

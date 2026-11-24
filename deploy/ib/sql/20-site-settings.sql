@@ -23,7 +23,8 @@
 -- Gravatar'dı (intranette erişilemez): sistem avatarına çekilir.
 -- Kayıt kapanır: kullanıcı hesapları ilk LDAP girişinde kendiliğinden açılır.
 -- Şifreli giriş açık kalır, çünkü yönetici /users/admin'den onunla girer
--- (sunucu şifreli girişi yalnız yöneticiye izin verir). Tema kurum laciverti olur.
+-- (sunucu şifreli girişi yalnız yöneticiye izin verir). Ana renk kurum laciverti, üst bar
+-- beyaz olur (logo koyu yazılıdır).
 BEGIN;
 UPDATE site_info SET content = jsonb_set(content::jsonb, '{require_email_verification}', 'false')::text
 WHERE type = 'login';
@@ -34,8 +35,12 @@ UPDATE site_info SET content = (content::jsonb
 WHERE type = 'login';
 UPDATE site_info SET content = jsonb_set(jsonb_set(content::jsonb,
     '{theme_config,default,primary_color}', '"#061c5f"'),
-    '{theme_config,default,navbar_style}', '"#061c5f"')::text
+    '{theme_config,default,navbar_style}', '"#ffffff"')::text
 WHERE type = 'theme';
+-- Rozet ikonları: "Bilirkişi" (scholar) ve "İstihbaratçı" (autobiographer). Adlar
+-- çeviri dosyasından gelir; ikon tabloda durur, bu yüzden burada da güncellenir.
+UPDATE badge SET icon = 'mortarboard-fill' WHERE name = 'badge.default_badges.scholar.name';
+UPDATE badge SET icon = 'incognito' WHERE name = 'badge.default_badges.autobiographer.name';
 -- id sıraları: kurulumun elle verdiği id'ler (yönetici = 1) sırayı ilerletmez; yeni
 -- kurulmuş bir veritabanında ilk LDAP kullanıcısı "duplicate key ... user_pkey" ile
 -- düşer. Sıra tablodaki en büyük id'ye çekilir, hiçbir zaman geri alınmaz.

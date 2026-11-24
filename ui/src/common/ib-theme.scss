@@ -29,18 +29,122 @@
   --ib-tag-bg: #f5eedf;
   --ib-tag-bg-hover: #ebdcbf;
   --ib-tag-color: #{$ib-navy};
+  // Zemin lacivertin çok açık tonu, yüzeyler (kart, liste, form) beyaz.
+  --ib-surface: #fff;
+  --ib-nav-active-bg: rgba(var(--ib-navy-rgb), 0.08);
+  --bs-body-bg: #f3f5fa;
+  --bs-body-bg-rgb: 243, 245, 250;
+  --bs-secondary-bg: #e4e8f1;
+  --bs-secondary-bg-rgb: 228, 232, 241;
+  --bs-tertiary-bg: #eaedf5;
+  --bs-tertiary-bg-rgb: 234, 237, 245;
+  --bs-border-color: #d5dbe8;
+  --bs-border-color-translucent: rgba(var(--ib-navy-rgb), 0.14);
 }
 
-[data-bs-theme='dark'] {
+// Yalnızca kök: üst bar açık temada da data-bs-theme="dark" taşır.
+:root[data-bs-theme='dark'] {
   --ib-gold-text: #dcc08c;
   --ib-tag-bg: rgba(194, 156, 90, 0.18);
   --ib-tag-bg-hover: rgba(194, 156, 90, 0.3);
   --ib-tag-color: #ecdcbd;
+  // Koyu tema gri değil lacivert (giris'teki zemin tonları).
+  --ib-surface: #0d1f40;
+  --ib-nav-active-bg: rgba(var(--ib-gold-rgb), 0.12);
+  --bs-body-bg: #081529;
+  --bs-body-bg-rgb: 8, 21, 41;
+  --bs-body-color: #dfe5f1;
+  --bs-body-color-rgb: 223, 229, 241;
+  --bs-secondary-bg: #16294f;
+  --bs-secondary-bg-rgb: 22, 41, 79;
+  --bs-tertiary-bg: #0f2145;
+  --bs-tertiary-bg-rgb: 15, 33, 69;
+  --bs-secondary-color: rgba(223, 229, 241, 0.72);
+  --bs-border-color: #22365f;
+  --bs-border-color-translucent: rgba(160, 180, 225, 0.18);
+  --an-e9ecef: #0f2145;
+  --an-pre: #0b1b38;
+  --an-gray-300: #0f2145;
+  --an-white: #050d1c;
 }
 
-// Üst bar: lacivert zemin, altın alt çizgi.
+// Koyu temada bağlantı rengi: CustomizeTheme primary'den türetip sonradan
+// enjekte ettiği ton lacivert zeminde okunmuyor; `html` ile özgüllük artar.
+html:root[data-bs-theme='dark'] {
+  --bs-link-color: #9db4ee;
+  --bs-link-color-rgb: 157, 180, 238;
+  --bs-link-hover-color: #c3d2f6;
+  --bs-link-hover-color-rgb: 195, 210, 246;
+}
+
+// Yüzeyler zeminden ayrışır.
+.card {
+  --bs-card-bg: var(--ib-surface);
+  --bs-card-cap-bg: rgba(var(--ib-navy-rgb), 0.04);
+}
+
+.list-group {
+  --bs-list-group-bg: var(--ib-surface);
+}
+
+.dropdown-menu {
+  --bs-dropdown-bg: var(--ib-surface);
+}
+
+.modal {
+  --bs-modal-bg: var(--ib-surface);
+}
+
+.form-control,
+.form-control:focus,
+.form-select {
+  background-color: var(--ib-surface);
+}
+
+:root[data-bs-theme='dark'] {
+  .card {
+    --bs-card-cap-bg: rgba(255, 255, 255, 0.04);
+  }
+
+  #sideNav,
+  #answerAccordion {
+    .nav-link:hover,
+    .nav-link.active {
+      background-color: var(--ib-nav-active-bg) !important;
+    }
+  }
+
+  .link-secondary {
+    color: var(--bs-secondary-color) !important;
+  }
+}
+
+#sideNav .nav-link.active {
+  background-color: var(--ib-nav-active-bg) !important;
+  color: var(--ib-navy);
+}
+
+:root[data-bs-theme='dark'] #sideNav .nav-link.active {
+  color: var(--ib-tag-color);
+}
+
+// Alt bilgi ibaresi: giris'teki gibi, yıldız altın.
+.ib-footer-credit {
+  letter-spacing: 0.02em;
+}
+
+.ib-star {
+  color: var(--ib-gold);
+}
+
+// Üst bar: beyaz zemin (logo koyu yazılı), altın alt çizgi.
 #header {
   border-bottom: 3px solid var(--ib-gold);
+
+  &.theme-light .placeholder-search {
+    background-color: rgba(var(--ib-navy-rgb), 0.05);
+    border-color: rgba(var(--ib-navy-rgb), 0.14);
+  }
 }
 
 // Alt bilgi: altın üst çizgi.

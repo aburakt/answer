@@ -698,6 +698,8 @@ export const SYSTEM_AVATAR_OPTIONS = [
 export const TAG_SLUG_NAME_MAX_LENGTH = 35;
 
 export const DEFAULT_THEME_COLOR = '#061c5f'; // ib: kurum laciverti
+// ib: üst bar beyaz; kurum logosu koyu yazılı olduğu için lacivert zeminde okunmaz.
+export const DEFAULT_NAVBAR_COLOR = '#ffffff';
 
 export const SUSPENSE_USER_TIME = [
   {
