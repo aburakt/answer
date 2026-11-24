@@ -43,6 +43,9 @@ const Index: React.FC = () => {
   const { user, update } = loggedUserInfoStore();
   const { agent: ucAgent } = userCenterStore();
   const { users: usersSettings } = siteInfoStore();
+  // ib: kullanıcı adı LDAP'tan, profil resmi personel kaydından gelir; yalnız
+  // site yöneticisi (role_id 2) değiştirebilir. Sunucu da aynı kuralı uygular.
+  const profileLocked = user.role_id !== 2;
   const [mailHash, setMailHash] = useState('');
   const [count] = useState(0);
   const [profileAgent, setProfileAgent] = useState<UcSettingAgent>();
@@ -147,7 +150,10 @@ const Index: React.FC = () => {
   const checkValidated = (): boolean => {
     let bol = true;
     const { display_name, website, username } = formData;
-    if (!display_name.value) {
+    // ib: kilitli profilde görünen ad sunucuda korunur, burada denetlenmez
+    if (profileLocked) {
+      formData.display_name = { ...display_name, isInvalid: false };
+    } else if (!display_name.value) {
       bol = false;
       formData.display_name = {
         value: '',
@@ -227,7 +233,7 @@ const Index: React.FC = () => {
     }
 
     const params = {
-      display_name: formData.display_name.value,
+      display_name: profileLocked ? '' : formData.display_name.value,
       username: formData.username.value,
       avatar: {
         type: formData.avatar.type,
@@ -309,6 +315,7 @@ const Index: React.FC = () => {
             <Form.Control
               required
               type="text"
+              disabled={profileLocked}
               value={formData.display_name.value}
               isInvalid={formData.display_name.isInvalid}
               onChange={(e) =>
@@ -321,6 +328,9 @@ const Index: React.FC = () => {
                 })
               }
             />
+            {profileLocked && (
+              <Form.Text as="div">{t('display_name.locked')}</Form.Text>
+            )}
             <Form.Control.Feedback type="invalid">
               {formData.display_name.errorMsg}
             </Form.Control.Feedback>
@@ -333,6 +343,7 @@ const Index: React.FC = () => {
               type="text"
               value={formData.username.value}
               isInvalid={formData.username.isInvalid}
+              disabled={profileLocked}
               onChange={(e) =>
                 handleChange({
                   username: {
@@ -343,13 +354,37 @@ const Index: React.FC = () => {
                 })
               }
             />
-            <Form.Text as="div">{t('username.caption')}</Form.Text>
+            <Form.Text as="div">
+              {t(profileLocked ? 'username.locked' : 'username.caption')}
+            </Form.Text>
             <Form.Control.Feedback type="invalid">
               {formData.username.errorMsg}
             </Form.Control.Feedback>
           </Form.Group>
 
-          <Form.Group controlId="avatar" className="mb-3">
+          {profileLocked && (
+            <div className="mb-3">
+              <div className="form-label">{t('avatar.label')}</div>
+              <div>
+                <Avatar
+                  size="160px"
+                  searchStr="s=256"
+                  avatar={
+                    formData.avatar.type === 'custom'
+                      ? formData.avatar.custom
+                      : ''
+                  }
+                  alt={formData.display_name.value}
+                />
+              </div>
+              <Form.Text as="div" className="d-block mt-2">
+                {t('avatar.locked')}
+              </Form.Text>
+            </div>
+          )}
+          <Form.Group
+            controlId="avatar"
+            className={profileLocked ? 'd-none' : 'mb-3'}>
             <Form.Label>{t('avatar.label')}</Form.Label>
             <div className="mb-3">
               <Form.Select

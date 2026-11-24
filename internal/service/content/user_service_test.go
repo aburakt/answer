@@ -196,3 +196,27 @@ func TestApplyRegistrationVerification(t *testing.T) {
 		assert.Equal(t, entity.EmailStatusToBeVerified, userInfo.MailStatus)
 	})
 }
+
+// ib: the username and display name come from LDAP and the avatar is the
+// personnel photo; only the site admin may change them.
+func TestProfileLockKeepsUsernameAndAvatar(t *testing.T) {
+	service := &UserService{}
+	old := &entity.User{Username: "1234567", Avatar: `{"type":"custom","custom":"/answer/api/v1/ib-ldap/foto/1234567-ab"}`, DisplayName: "Eski"}
+	req := &schema.UpdateInfoRequest{
+		UserID:      "7",
+		Username:    "baskasi",
+		DisplayName: "Yeni",
+		Avatar:      schema.AvatarInfo{Type: "custom", Custom: "/uploads/avatar/x.png"},
+	}
+
+	got := service.formatUserInfoForUpdateInfo(old, req)
+	assert.Equal(t, "1234567", got.Username)
+	assert.Equal(t, old.Avatar, got.Avatar)
+	assert.Equal(t, "Eski", got.DisplayName)
+
+	req.IsSiteAdmin = true
+	got = service.formatUserInfoForUpdateInfo(old, req)
+	assert.Equal(t, "baskasi", got.Username)
+	assert.Equal(t, "Yeni", got.DisplayName)
+	assert.Contains(t, got.Avatar, "/uploads/avatar/x.png")
+}

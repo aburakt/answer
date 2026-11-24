@@ -35,6 +35,8 @@ import {
 } from '@/stores';
 import { logout, useQueryNotificationStatus } from '@/services';
 import { Icon, MobileSideNav } from '@/components';
+import { DEFAULT_NAVBAR_COLOR, IB_NAVBAR_DARK_COLOR } from '@/common/constants';
+import IbLogo from '@/assets/images/ib-logo.svg';
 
 import NavItems from './components/NavItems';
 import SearchInput from './components/SearchInput';
@@ -84,9 +86,31 @@ const Header: FC = () => {
   let navbarStyle = 'theme-light';
   let themeMode = 'light';
   const { theme, theme_config, layout } = themeSettingStore((_) => _);
-  if (theme_config?.[theme]?.navbar_style) {
-    // const color = theme_config[theme].navbar_style.startsWith('#')
-    themeMode = isLight(theme_config[theme].navbar_style) ? 'light' : 'dark';
+  // ib: varsayılan (beyaz) üst bar koyu temada laciverte döner; yönetici başka
+  // bir renk seçtiyse o renk iki temada da aynen kullanılır.
+  const [isDark, setIsDark] = useState(
+    document.documentElement.getAttribute('data-bs-theme') === 'dark',
+  );
+  useEffect(() => {
+    const root = document.documentElement;
+    const observer = new MutationObserver(() => {
+      setIsDark(root.getAttribute('data-bs-theme') === 'dark');
+    });
+    observer.observe(root, {
+      attributes: true,
+      attributeFilter: ['data-bs-theme'],
+    });
+    return () => observer.disconnect();
+  }, []);
+  let navbarColor = theme_config?.[theme]?.navbar_style;
+  if (
+    isDark &&
+    navbarColor?.toLowerCase() === DEFAULT_NAVBAR_COLOR.toLowerCase()
+  ) {
+    navbarColor = IB_NAVBAR_DARK_COLOR;
+  }
+  if (navbarColor) {
+    themeMode = isLight(navbarColor) ? 'light' : 'dark';
     navbarStyle = `theme-${themeMode}`;
   }
 
@@ -110,7 +134,7 @@ const Header: FC = () => {
       expand="xl"
       className={classnames('sticky-top', navbarStyle)}
       style={{
-        backgroundColor: theme_config[theme].navbar_style,
+        backgroundColor: navbarColor,
       }}
       id="header">
       <div
@@ -145,7 +169,15 @@ const Header: FC = () => {
               />
             </>
           ) : (
-            <span>{siteInfo.name}</span>
+            // ib: yüklenmiş logo yoksa forum logosu ve yazı. Yazı rengi üst barın
+            // açık ya da koyu olmasına göre CSS'ten gelir.
+            <span className="ib-brand" aria-label={siteInfo.name}>
+              <img className="ib-brand-emblem" src={IbLogo} alt="" />
+              <span className="ib-brand-text d-none d-sm-flex">
+                <span className="ib-brand-title">İSTİHBARAT BAŞKANLIĞI</span>
+                <span className="ib-brand-sub">FORUM UYGULAMASI</span>
+              </span>
+            </span>
           )}
         </Navbar.Brand>
 
@@ -177,8 +209,8 @@ const Header: FC = () => {
             <Nav.Item className="me-2 d-none d-xl-block">
               <NavLink
                 to={askUrl}
-                className="nav-link d-flex align-items-center text-capitalize text-nowrap">
-                <Icon name="plus-lg" className="me-2 lh-1 fs-4" />
+                className="nav-link ib-create d-flex align-items-center text-capitalize text-nowrap">
+                <Icon name="plus-lg" className="me-2 lh-1 fs-5" />
                 <span>{t('btns.create')}</span>
               </NavLink>
             </Nav.Item>

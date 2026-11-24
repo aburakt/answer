@@ -19,7 +19,7 @@ plugin:
   ldap_connector:
     backend:
       name:
-        other: LDAP
+        other: Organisation account
       info:
         name:
           other: LDAP login
@@ -93,6 +93,16 @@ plugin:
             other: Test user
           description:
             other: User to look up in the connection test. No password needed. Optional.
+        photo_url:
+          title:
+            other: "YAPI URL for the profile image"
+          description:
+            other: "When set, the profile image is fetched from YAPI at sign-in with the same request giris uses (get_foto_from_redis_by_sicil). Example: https://giris.example.gov.tr/yapi. Leave empty to skip the profile image."
+        photo_app:
+          title:
+            other: "YAPI application name"
+          description:
+            other: "The application value sent when the YAPI session is opened. GIRIS_DASHBOARD when empty."
         test:
           title:
             other: Connection test

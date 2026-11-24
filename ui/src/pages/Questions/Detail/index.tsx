@@ -38,6 +38,7 @@ import type {
 } from '@/common/interface';
 import { questionDetail, getAnswers } from '@/services';
 
+import IbAnnouncement from './components/IbAnnouncement';
 import {
   Question,
   Answer,
@@ -245,7 +246,12 @@ const Index = () => {
   return (
     <Row className="questionDetailPage pt-4 mb-5">
       <Col className="page-main flex-auto">
-        {question?.operation?.level && <Alert data={question.operation} />}
+        {/* ib: duyuruda yalnız duyuru bandı; "kapatıldı" uyarısı gösterilmez. */}
+        {Number(question?.announced_at) > 0 ? (
+          <IbAnnouncement time={Number(question?.announced_at)} />
+        ) : (
+          question?.operation?.level && <Alert data={question.operation} />
+        )}
         {isSkeletonShow ? (
           <ContentLoader />
         ) : (

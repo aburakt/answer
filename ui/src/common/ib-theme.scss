@@ -29,23 +29,199 @@
   --ib-tag-bg: #f5eedf;
   --ib-tag-bg-hover: #ebdcbf;
   --ib-tag-color: #{$ib-navy};
+  // Zemin lacivertin çok açık tonu, yüzeyler (kart, liste, form) beyaz.
+  --ib-surface: #fff;
+  --ib-nav-active-bg: rgba(var(--ib-navy-rgb), 0.08);
+  --bs-body-bg: #f3f5fa;
+  --bs-body-bg-rgb: 243, 245, 250;
+  --bs-secondary-bg: #e4e8f1;
+  --bs-secondary-bg-rgb: 228, 232, 241;
+  --bs-tertiary-bg: #eaedf5;
+  --bs-tertiary-bg-rgb: 234, 237, 245;
+  --bs-border-color: #d5dbe8;
+  --bs-border-color-translucent: rgba(var(--ib-navy-rgb), 0.14);
 }
 
-[data-bs-theme='dark'] {
+// Yalnızca kök: üst bar açık temada da data-bs-theme="dark" taşır.
+:root[data-bs-theme='dark'] {
   --ib-gold-text: #dcc08c;
   --ib-tag-bg: rgba(194, 156, 90, 0.18);
   --ib-tag-bg-hover: rgba(194, 156, 90, 0.3);
   --ib-tag-color: #ecdcbd;
+  // Koyu tema gri değil lacivert (giris'teki zemin tonları).
+  --ib-surface: #0d1f40;
+  --ib-nav-active-bg: rgba(var(--ib-gold-rgb), 0.12);
+  --bs-body-bg: #081529;
+  --bs-body-bg-rgb: 8, 21, 41;
+  --bs-body-color: #dfe5f1;
+  --bs-body-color-rgb: 223, 229, 241;
+  --bs-secondary-bg: #16294f;
+  --bs-secondary-bg-rgb: 22, 41, 79;
+  --bs-tertiary-bg: #0f2145;
+  --bs-tertiary-bg-rgb: 15, 33, 69;
+  --bs-secondary-color: rgba(223, 229, 241, 0.72);
+  --bs-border-color: #22365f;
+  --bs-border-color-translucent: rgba(160, 180, 225, 0.18);
+  --an-e9ecef: #0f2145;
+  --an-pre: #0b1b38;
+  --an-gray-300: #0f2145;
+  --an-white: #050d1c;
 }
 
-// Üst bar: lacivert zemin, altın alt çizgi.
+// Koyu temada bağlantı rengi: CustomizeTheme primary'den türetip sonradan
+// enjekte ettiği ton lacivert zeminde okunmuyor; `html` ile özgüllük artar.
+html:root[data-bs-theme='dark'] {
+  --bs-link-color: #9db4ee;
+  --bs-link-color-rgb: 157, 180, 238;
+  --bs-link-hover-color: #c3d2f6;
+  --bs-link-hover-color-rgb: 195, 210, 246;
+}
+
+// Yüzeyler zeminden ayrışır.
+.card {
+  --bs-card-bg: var(--ib-surface);
+  --bs-card-cap-bg: rgba(var(--ib-navy-rgb), 0.04);
+}
+
+.list-group {
+  --bs-list-group-bg: var(--ib-surface);
+}
+
+.dropdown-menu {
+  --bs-dropdown-bg: var(--ib-surface);
+}
+
+.modal {
+  --bs-modal-bg: var(--ib-surface);
+}
+
+.form-control,
+.form-control:focus,
+.form-select {
+  background-color: var(--ib-surface);
+}
+
+:root[data-bs-theme='dark'] {
+  .card {
+    --bs-card-cap-bg: rgba(255, 255, 255, 0.04);
+  }
+
+  #sideNav,
+  #answerAccordion {
+    .nav-link:hover,
+    .nav-link.active {
+      background-color: var(--ib-nav-active-bg) !important;
+    }
+  }
+
+  .link-secondary {
+    color: var(--bs-secondary-color) !important;
+  }
+}
+
+#sideNav .nav-link.active {
+  background-color: var(--ib-nav-active-bg) !important;
+  color: var(--ib-navy);
+}
+
+:root[data-bs-theme='dark'] #sideNav .nav-link.active {
+  color: var(--ib-tag-color);
+}
+
+// Alt bilgi ibaresi: giris'teki gibi, yıldız altın.
+.ib-footer-credit {
+  letter-spacing: 0.02em;
+}
+
+.ib-star {
+  color: var(--ib-gold);
+}
+
+// Üst bar: açık temada beyaz, koyu temada lacivert; ince altın alt çizgi.
 #header {
-  border-bottom: 3px solid var(--ib-gold);
+  border-bottom: 1px solid rgba(var(--ib-gold-rgb), 0.55);
+
+  .ib-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--ib-navy);
+  }
+
+  .ib-brand-emblem {
+    width: 2.5rem;
+    height: 2.5rem;
+    // Logonun beyaz çerçevesi beyaz üst barda da seçilsin.
+    filter: drop-shadow(0 0 1px rgba(var(--ib-navy-rgb), 0.45));
+  }
+
+  .ib-brand-text {
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.2rem;
+    line-height: 1;
+  }
+
+  .ib-brand-title {
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+
+  .ib-brand-sub {
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.42em;
+    color: var(--ib-gold-text);
+  }
+
+  &.theme-dark .ib-brand {
+    color: #fff;
+  }
+
+  // "Soru Oluştur": altın kenarlı düğme; üzerine gelince dolar.
+  .nav-link.ib-create {
+    padding: 0.375rem 0.875rem;
+    border: 1px solid var(--ib-gold);
+    border-radius: var(--bs-border-radius);
+    color: var(--ib-navy);
+    font-weight: 500;
+    transition:
+      background-color 0.15s ease-in-out,
+      color 0.15s ease-in-out;
+
+    &:hover,
+    &:focus-visible {
+      background-color: var(--ib-navy);
+      border-color: var(--ib-navy);
+      color: #fff;
+    }
+  }
+
+  &.theme-dark .nav-link.ib-create {
+    color: #fff;
+
+    &:hover,
+    &:focus-visible {
+      background-color: var(--ib-gold);
+      border-color: var(--ib-gold);
+      color: var(--ib-navy);
+    }
+  }
+
+  &.theme-dark .ib-brand-sub {
+    color: #dcc08c;
+  }
+
+  &.theme-light .placeholder-search {
+    background-color: rgba(var(--ib-navy-rgb), 0.05);
+    border-color: rgba(var(--ib-navy-rgb), 0.14);
+  }
 }
 
-// Alt bilgi: altın üst çizgi.
+// Alt bilgi: ince altın üst çizgi.
 footer {
-  border-top: 2px solid rgba(var(--ib-gold-rgb), 0.6);
+  border-top: 1px solid rgba(var(--ib-gold-rgb), 0.4);
 }
 
 // Etiketler: açık altın zemin, lacivert yazı.
@@ -58,9 +234,9 @@ footer {
   }
 }
 
-// Sol menüde seçili öğe ve sekmeler: altın vurgu çizgisi.
+// Sol menüde seçili öğe: her kenarda ince, saydam altın çerçeve.
 .nav-pills .nav-link.active {
-  box-shadow: inset 3px 0 0 var(--ib-gold);
+  box-shadow: inset 0 0 0 1px rgba(var(--ib-gold-rgb), 0.45);
 }
 
 .nav-tabs .nav-link.active,
@@ -87,4 +263,227 @@ footer {
 // Koyu temada lacivert düğme zeminle kaynaşır; altın kenar ayırır.
 [data-bs-theme='dark'] .btn-primary {
   border-color: var(--ib-gold);
+}
+
+// Rozet seviyeleri statüye göre griden altına gider.
+.bronze {
+  color: #8a93a6;
+}
+
+.silver {
+  color: #b3a37f;
+}
+
+.gold {
+  color: var(--ib-gold);
+}
+
+:root[data-bs-theme='dark'] {
+  .bronze {
+    color: #98a2b8;
+  }
+
+  .silver {
+    color: #c9b891;
+  }
+}
+
+// Bilirkişi rozeti (mortarboard-fill): seviyesinden bağımsız altın, çift
+// altın halka içinde. Ölçüler em: simge her boyutta aynı oranı korur.
+.bi-mortarboard-fill {
+  &.bronze,
+  &.silver,
+  &.gold {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 1em;
+    height: 1em;
+    border: 0.035em solid var(--ib-gold);
+    border-radius: 50%;
+    background: radial-gradient(
+      circle,
+      rgba(var(--ib-gold-rgb), 0.22) 0%,
+      rgba(var(--ib-gold-rgb), 0.06) 70%
+    );
+    box-shadow:
+      inset 0 0 0 0.03em var(--ib-surface),
+      inset 0 0 0 0.045em rgba(var(--ib-gold-rgb), 0.55),
+      0 0 0.12em rgba(var(--ib-gold-rgb), 0.45);
+    color: var(--ib-gold);
+
+    &::before {
+      transform: scale(0.56);
+    }
+  }
+}
+
+// Giriş ekranı: amblem ve başlık, ince altın çerçeveli kart.
+.ib-login {
+  padding: 2rem 2rem 2.25rem;
+  border: 1px solid rgba(var(--ib-gold-rgb), 0.45);
+  box-shadow: 0 0.5rem 1.5rem rgba(var(--ib-navy-rgb), 0.08);
+}
+
+.ib-login-brand {
+  margin-bottom: 1.75rem;
+  text-align: center;
+
+  img {
+    margin-bottom: 1rem;
+  }
+}
+
+.ib-login-title {
+  margin: 0 0 0.4rem;
+  color: var(--ib-navy);
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.ib-login-sub {
+  color: var(--ib-gold-text);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.42em;
+}
+
+:root[data-bs-theme='dark'] .ib-login-title {
+  color: #fff;
+}
+
+.ib-password-toggle {
+  border-color: var(--bs-border-color);
+  background-color: var(--ib-surface);
+}
+
+// Koyu temada lacivert çerçeveli düğme zeminde kaybolur: altın çerçeve.
+// (`html` özgüllüğü: CustomizeTheme aynı değişkenleri sonradan enjekte eder.)
+html[data-bs-theme='dark'] .btn-outline-primary {
+  --bs-btn-color: #ecdcbd;
+  --bs-btn-border-color: var(--ib-gold);
+  --bs-btn-hover-color: var(--ib-navy);
+  --bs-btn-hover-bg: var(--ib-gold);
+  --bs-btn-hover-border-color: var(--ib-gold);
+  --bs-btn-active-color: var(--ib-navy);
+  --bs-btn-active-bg: var(--ib-gold);
+  --bs-btn-active-border-color: var(--ib-gold);
+}
+
+html[data-bs-theme='dark'] .pagination {
+  --bs-pagination-color: #c3d2f6;
+  --bs-pagination-hover-color: #fff;
+  --bs-pagination-focus-color: #fff;
+  --bs-pagination-active-border-color: var(--ib-gold);
+}
+
+// İkincil (gri) yazı ve düğmeler: Bootstrap grisi (#6c757d) lacivert zeminde
+// okunmuyor, açık zeminde de sınırda. İki temada da 4.5:1 üstü tonlar.
+:root {
+  --ib-muted: #59626e;
+}
+
+:root[data-bs-theme='dark'] {
+  --ib-muted: #a3b0cb;
+}
+
+.text-secondary,
+.link-secondary {
+  color: var(--ib-muted) !important;
+}
+
+// Gri kenarlı düğmeler ve sıralama sekmeleri (En Yeni, Aktif...): ince
+// kenar; seçili olan açık temada açık lacivert, koyu temada altın tonu.
+.btn-outline-secondary {
+  --bs-btn-color: var(--ib-muted);
+  --bs-btn-border-color: rgba(var(--ib-navy-rgb), 0.22);
+  --bs-btn-hover-color: var(--ib-navy);
+  --bs-btn-hover-bg: rgba(var(--ib-navy-rgb), 0.06);
+  --bs-btn-hover-border-color: rgba(var(--ib-navy-rgb), 0.3);
+  --bs-btn-active-color: var(--ib-navy);
+  --bs-btn-active-bg: rgba(var(--ib-navy-rgb), 0.1);
+  --bs-btn-active-border-color: rgba(var(--ib-navy-rgb), 0.45);
+
+  &.active {
+    font-weight: 500;
+  }
+}
+
+.btn-outline-success {
+  --bs-btn-color: #146c43;
+  --bs-btn-border-color: #146c43;
+}
+
+[data-bs-theme='dark'] {
+  .btn-outline-secondary {
+    --bs-btn-border-color: rgba(255, 255, 255, 0.16);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: rgba(255, 255, 255, 0.07);
+    --bs-btn-hover-border-color: rgba(255, 255, 255, 0.24);
+    --bs-btn-active-color: #f0e2c4;
+    --bs-btn-active-bg: rgba(var(--ib-gold-rgb), 0.14);
+    --bs-btn-active-border-color: rgba(var(--ib-gold-rgb), 0.45);
+  }
+
+  .btn-outline-success {
+    --bs-btn-color: #5fce98;
+    --bs-btn-border-color: #5fce98;
+  }
+}
+
+// Soru altındaki "Yorum ekle" ve tepki hapları: dolgulu zeminde gövde rengi.
+.btn-reaction.link-secondary {
+  color: var(--bs-body-color) !important;
+}
+
+html[data-bs-theme='dark'] .btn-reaction.link-secondary {
+  color: #fff !important;
+}
+
+// Duyuru bandı: altın çerçeveli, lacivert zeminli.
+.ib-announcement {
+  padding: 0.875rem 1.125rem;
+  border: 1px solid rgba(var(--ib-gold-rgb), 0.55);
+  border-radius: var(--bs-border-radius);
+  background: rgba(var(--ib-gold-rgb), 0.12);
+  color: var(--bs-body-color);
+}
+
+.ib-announcement-heading {
+  margin-bottom: 0.15rem;
+  color: var(--ib-gold-text);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+// Bilirkişi rozeti koyu temada: içi dolu altın, simge lacivert.
+:root[data-bs-theme='dark'] .bi-mortarboard-fill {
+  &.bronze,
+  &.silver,
+  &.gold {
+    background: radial-gradient(circle, #d9b678 0%, var(--ib-gold) 75%);
+    box-shadow:
+      inset 0 0 0 0.03em var(--ib-surface),
+      inset 0 0 0 0.045em #e6cfa0,
+      0 0 0.14em rgba(var(--ib-gold-rgb), 0.55);
+    color: #061c5f;
+  }
+}
+
+// Ayarlar gibi sayfalardaki hap menüler: dolu lacivert yerine sol menüyle
+// aynı sakin seçili görünüm. `html` öneki: CustomizeTheme aynı değişkeni
+// sayfaya sonradan basıyor.
+html .nav-pills {
+  --bs-nav-pills-link-active-bg: var(--ib-nav-active-bg);
+  --bs-nav-pills-link-active-color: var(--ib-navy);
+
+  .nav-link.active {
+    font-weight: 500;
+  }
+}
+
+html[data-bs-theme='dark'] .nav-pills {
+  --bs-nav-pills-link-active-color: #f0e2c4;
 }

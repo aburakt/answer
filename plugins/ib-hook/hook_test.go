@@ -152,8 +152,15 @@ func TestUpsertLifecycle(t *testing.T) {
 }
 
 func TestRejects(t *testing.T) {
-	_, fc, r := setup(t)
+	h, fc, r := setup(t)
 	ok := `{"type":"topic.upsert","ref":"a","version":1,"title":"Başlık","content":"x"}`
+	// Kaynak tanımlı, secret yok: kurulum eksiği, 503 ile yeniden denenir.
+	env := h.getenv
+	h.getenv = func(string) string { return "" }
+	if w := send(r, "kilavuz", "s1", ok, []byte("gizli"), now); w.Code != 503 {
+		t.Fatalf("secret yok: %d", w.Code)
+	}
+	h.getenv = env
 	cases := map[string]*httptest.ResponseRecorder{
 		"yanlış secret":     send(r, "kilavuz", "a1", ok, []byte("yanlis"), now),
 		"eski damga":        send(r, "kilavuz", "a2", ok, []byte("gizli"), now.Add(-10*time.Minute)),
@@ -177,9 +184,9 @@ func TestRejects(t *testing.T) {
 	if w := send(r, "kilavuz", "b1", ok, []byte("gizli"), now); w.Code != 200 || fc.created != 1 {
 		t.Fatalf("yeniden deneme: %d", w.Code)
 	}
-	// Eklenti kapalıyken rota yanıt vermez.
+	// Eklenti kapalıyken 503: gönderen yeniden dener.
 	plugin.StatusManager.Enable(slugName, false)
-	if w := send(r, "kilavuz", "c1", ok, []byte("gizli"), now); w.Code != 404 {
+	if w := send(r, "kilavuz", "c1", ok, []byte("gizli"), now); w.Code != 503 {
 		t.Fatalf("kapalı: %d", w.Code)
 	}
 }

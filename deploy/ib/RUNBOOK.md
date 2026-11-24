@@ -16,7 +16,7 @@ Yerel PostgreSQL 16 üzerinde, 1.6.0 kurulumu + Keycloak biçiminde üç kullan�
 | `answer upgrade` (2.0.3) | 28 → 36, 8 migration, hata yok, 0,1 sn |
 | `site_info` diff'i | ayarlar yeni anahtarlara bölündü; eklenenler aşağıda |
 | `sql/10-keycloak-to-ldap.sql` | 3 Keycloak hesabına sicilli `ldap` satırı eklendi; ikinci çalıştırmada yeni satır yok (PostgreSQL 16, 18 Kasım) |
-| `sql/20-site-settings.sql` | e-posta doğrulama zorunluluğu kapandı, avatar `system`, kayıt kapandı, tema lacivert (23 Kasım), id sıraları düzeltildi (24 Kasım) |
+| `sql/20-site-settings.sql` | e-posta doğrulama zorunluluğu kapandı, avatar `system`, kayıt kapandı, ana renk lacivert (23 Kasım), id sıraları düzeltildi, üst bar beyaz, yüklenmiş logo temizlendi (yerleşik amblem), iki rozet ikonu (24 Kasım) |
 | LDAP girişi (24 Kasım) | gerçek build + nginx (TLS) + PostgreSQL 16 + Samba Active Directory ile uçtan uca: ldaps, StartTLS, şifresiz, IP adresi, iç CA, hatalı ayarlar, e-postasız ve pasif hesaplar |
 | `answer run` + `/answer/api/v1/siteinfo` | 200 |
 | `pg_restore` ile geri dönüş | `version` = 28, eski kayıtlar geri geldi |
@@ -54,6 +54,8 @@ yeni imaj `docker compose up` ile değil, adım adım başlatılır.
 6. **Kimlik eşleme.** `psql -v ON_ERROR_STOP=1 -U answer -f sql/10-keycloak-to-ldap.sql`
    İlk iki sorgu satır döndürürse dur: o kullanıcılar elle çözülür.
 7. **Ayarlar.** `psql -v ON_ERROR_STOP=1 -U answer -f sql/20-site-settings.sql`
+   İsteğe bağlı: `sql/30-duyurular.sql` eski sürümde kapatılıp sabitlenerek yapılmış
+   duyuruları yeni "Duyuru" işaretine çevirir (önce betiğin başındaki `SELECT` ile bakın).
 8. **Başlat.** `docker compose up -d`
 9. **LDAP connector'ı aç.** Admin > Eklentiler > LDAP connector:
    - `LDAP sunucusu`: `ldaps://<sunucu>:636` ya da `ldap://<sunucu>:389`.
@@ -84,6 +86,8 @@ yeni imaj `docker compose up` ile değil, adım adım başlatılır.
 12. **Bot hesabı.** Kılavuz konularını açan hesap (ör. `kilavuz-bot@egmidb.gov.tr`)
     Admin > Kullanıcılar'dan yerel hesap olarak açılır; LDAP'ta olması gerekmez,
     login olmaz.
+    Hook kaynağındaki `bot_email` bu hesabın e-postasıyla aynı olmalı; hesap yoksa
+    plugin 422 döner ve Kılavuz o olayı yeniden denemez.
 13. **Hook kaynakları.** Admin > Eklentiler > Hook geçidi açılır, kaynaklar girilir,
     `ANSWER_HOOK_SECRET_<ID>` değerleri `.env`'e konur, `docker compose up -d`.
 
@@ -119,6 +123,16 @@ yeni imaj `docker compose up` ile değil, adım adım başlatılır.
   eklenir, ya da adres IP ile yazılıp sertifika doğrulaması kapatılır.
 - Gravatar intranetten erişilemediği için kapalıdır: seçenek arayüzden kaldırıldı,
   veritabanında kalmış bir gravatar seçimi de `system` avatar olarak gösterilir.
+- Kullanıcı adı LDAP kullanıcı adıdır (sicil): ilk girişte öyle açılır, LDAP'ta
+  değişirse sonraki girişte güncellenir. Görünen ad da LDAP'taki addır ve her
+  girişte eşitlenir. Yönetici dışındaki kullanıcı kendi kullanıcı adını, görünen
+  adını ve profil resmini değiştiremez (sunucu isteği yok sayar).
+- Profil resmi: LDAP eklentisinin "Profil resmi için YAPI URL'si" ayarı doluysa
+  girişte giris'teki istekle alınır (`PERSONEL_WEB · personel ·
+  get_foto_from_redis_by_sicil`). Forumda YAPI oturumu olmadığı için eklenti önce
+  aynı sicil ve parolayla YAPI `giris` görevinden token alır. Resim alınamazsa
+  giriş yine başarılıdır, eski resim kalır; neden konteyner log'unda
+  "profil resmi alınamadı" satırındadır. Ayar boşsa hiçbir istek yapılmaz.
 - Geri dönüş: OAuth2 Temel yeniden açılır, `basic` satırları yerinde duruyor.
 
 ## Kilitlenirsen
@@ -166,7 +180,14 @@ Fork'taki değişiklikler küçük ve ayrı dosyalarda tutulur:
   `/users/admin` (yönetici şifre girişi), `EmailLogin`'de yönetici kontrolü,
   `plugin_api_router.go`'da LDAP POST route'u.
 - Tema: `ui/src/common/_ib-variables.scss` ve `ib-theme.scss` (lacivert/altın),
-  arayüz metinleri `// ib:` yorumuyla işaretli.
+  arayüz metinleri `// ib:` yorumuyla işaretli. Üst bar ve logo
+  `components/Header/index.tsx`, footer `components/Footer` ve
+  `ui/template/footer.html`, favicon `ui/public/favicon.ico`.
+- Rozet ikonları `internal/migrations/init_data.go` `defaultBadgeTable`'da;
+  upstream bu tabloyu değiştirirse iki `// ib:` satırı korunur.
+- Profil kilidi: `user_service.go` `UpdateInfo`/`formatUserInfoForUpdateInfo`,
+  `user_external_login_service.go` `syncUsername` ve avatar eşitlemesi,
+  `Users/Settings/Profile`.
 - `plugins/ib-hook/` ve `plugins/ib-ldap/` (ayrı Go modülleri), `deploy/ib/`,
   `script/plugin_list`'te iki satır. `ib-ldap`, upstream `connector-ldap`'tan türedi
   ve onun yerine kullanılır (upstream şifresiz LDAP'ı, IP adresini ve iç CA'yı
@@ -176,3 +197,14 @@ Fork'taki değişiklikler küçük ve ayrı dosyalarda tutulur:
 
 Yol: yeni etiketten `ib/vX.Y.Z` dalı açılır, bu commit'ler cherry-pick edilir,
 `go test ./i18n/ ./plugins/ib-hook/...` yeşil olana kadar çeviri tamamlanır.
+
+## Duyuru
+
+Yönetici ve moderatör, sorunun menüsünden **Duyuru Yap** ile soruyu duyuruya
+çevirir: soru sabitlenir ve üstünde duyuru bandı görünür. **Duyuruyu Kaldır**
+ikisini de geri alır. Eski sürümdeki gibi soruyu kapatmak gerekmez; duyuruya
+cevap yazılması istenmiyorsa ayrıca **Kapat** kullanılır (bant yine duyuru
+olarak kalır). İşaret `meta` tablosunda `ib.question.announcement` anahtarıyla
+durur. Fork dosyaları: `internal/service/permission/question_permission.go`
+(`WithAnnouncementActions`), `question_service.go` (`OperationQuestion`),
+`ui/src/pages/Questions/Detail/components/IbAnnouncement`.

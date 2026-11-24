@@ -27,7 +27,7 @@ import { useToast } from '@/hooks';
 import { handleFormError, scrollToElementTop } from '@/utils';
 import { themeSettingStore } from '@/stores';
 import { setupAppTheme } from '@/utils/localize';
-import { DEFAULT_THEME_COLOR } from '@/common/constants';
+import { DEFAULT_NAVBAR_COLOR, DEFAULT_THEME_COLOR } from '@/common/constants';
 
 const Index: FC = () => {
   const { t } = useTranslation('translation', {
@@ -70,7 +70,7 @@ const Index: FC = () => {
       navbar_style: {
         type: 'string',
         title: t('navbar_style.label'),
-        default: DEFAULT_THEME_COLOR,
+        default: DEFAULT_NAVBAR_COLOR,
       },
       primary_color: {
         type: 'string',
@@ -127,7 +127,7 @@ const Index: FC = () => {
 
   const resetNavbarStyle = () => {
     const formMeta = { ...formData };
-    formMeta.navbar_style.value = DEFAULT_THEME_COLOR;
+    formMeta.navbar_style.value = DEFAULT_NAVBAR_COLOR;
     setFormData({ ...formMeta });
   };
 
@@ -182,7 +182,7 @@ const Index: FC = () => {
         formMeta.themes.value = themeName;
         formMeta.navbar_style.value = themeConfig?.navbar_style.startsWith('#')
           ? themeConfig?.navbar_style
-          : DEFAULT_THEME_COLOR;
+          : DEFAULT_NAVBAR_COLOR;
         formMeta.primary_color.value = themeConfig?.primary_color;
         formData.color_scheme.value = setting?.color_scheme || 'system';
         formData.layout.value = setting?.layout || 'Full-width';

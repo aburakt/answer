@@ -20,12 +20,16 @@
 package ibldap
 
 import (
+	"bytes"
+	"context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
+	"crypto/md5" //nolint:gosec // sözleşme
 	"crypto/rand"
 	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/hex"
 	"encoding/json"
 	"encoding/pem"
 	"errors"
@@ -40,6 +44,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/apache/answer/plugin"
 	"github.com/gin-gonic/gin"
 	goldap "github.com/go-ldap/ldap/v3"
 	"github.com/jimlambrt/gldap"
@@ -233,7 +238,7 @@ func TestLogin(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			info, err := newConnector(t, tc.cfg).login(loginRequest(tc.user, tc.pass), receiver)
+			info, err := newConnector(t, tc.cfg).login(loginRequest(tc.user, tc.pass), receiver, photoCaller{})
 			if got := codeOf(err); got != tc.wantCode {
 				t.Fatalf("kod = %q (%v), beklenen %q", got, err, tc.wantCode)
 			}
@@ -337,4 +342,108 @@ func TestConfigFieldsKeepSecretsOutOfDefaults(t *testing.T) {
 	if byName["server"] != "dc1:389" {
 		t.Fatalf("yazılan adres değiştirilmeden gösterilmeli: %v", byName["server"])
 	}
+}
+
+type memStore map[string]string
+
+func (m memStore) Get(_ context.Context, p plugin.KVParams) (string, error) {
+	v, ok := m[p.Group+"/"+p.Key]
+	if !ok {
+		return "", plugin.ErrKVKeyNotFound
+	}
+	return v, nil
+}
+
+func (m memStore) Set(_ context.Context, p plugin.KVParams) error {
+	m[p.Group+"/"+p.Key] = p.Value
+	return nil
+}
+
+// fakeYAPI giris'in iki isteğini bekler: önce "giris" (X-Token: login), sonra
+// get_foto_from_redis_by_sicil (X-Token: oturum token'ı, X-Uid: sicil).
+func fakeYAPI(t *testing.T, photo []byte) (*httptest.Server, *[]http.Header) {
+	t.Helper()
+	var seen []http.Header
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var body map[string]string
+		_ = json.NewDecoder(r.Body).Decode(&body)
+		seen = append(seen, r.Header.Clone())
+		switch {
+		case body["maintask"] == "giris":
+			if r.Header.Get("X-Token") != "login" || body["password"] != "dogru" || body["application"] != "GIRIS_DASHBOARD" {
+				_, _ = w.Write([]byte(`{"login":false}`))
+				return
+			}
+			_, _ = w.Write([]byte(`{"login":true,"X-Token":"tok-1"}`))
+		case body["subtask"] == "get_foto_from_redis_by_sicil":
+			if r.Header.Get("X-Token") != "tok-1" || r.Header.Get("X-Uid") != body["sicil"] ||
+				body["application"] != "PERSONEL_WEB" || body["maintask"] != "personel" || body["uid"] != body["sicil"] {
+				w.WriteHeader(http.StatusUnauthorized)
+				return
+			}
+			_, _ = w.Write(photo)
+		default:
+			w.WriteHeader(http.StatusBadRequest)
+		}
+	}))
+	t.Cleanup(srv.Close)
+	return srv, &seen
+}
+
+var pngBytes = []byte("\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00")
+
+func TestAvatarFromYAPI(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	srv, seen := fakeYAPI(t, pngBytes)
+	c := New()
+	c.kv = memStore{}
+	cfg := Config{PhotoURL: srv.URL}.normalized()
+	caller := photoCaller{ClientIP: "10.0.0.7", UserAgent: "Mozilla/5.0"}
+
+	path := c.avatarFor(context.Background(), cfg, "1234567", "dogru", caller)
+	if !strings.HasPrefix(path, "/answer/api/v1/ib-ldap/foto/1234567-") {
+		t.Fatalf("avatar yolu = %q", path)
+	}
+	// Başlıklar giris ile aynı: X-Clientip, X-User-Agent = md5(userAgent).
+	for i, h := range *seen {
+		if h.Get("X-Clientip") != "10.0.0.7" || h.Get("X-User-Agent") != md5hex("Mozilla/5.0") {
+			t.Errorf("istek %d başlıkları = %v", i, h)
+		}
+	}
+	if (*seen)[0].Get("X-Uid") != "" {
+		t.Errorf("login isteğinde X-Uid olmamalı")
+	}
+
+	serve := func(name string) *httptest.ResponseRecorder {
+		w := httptest.NewRecorder()
+		ctx, _ := gin.CreateTestContext(w)
+		ctx.Request = httptest.NewRequest(http.MethodGet, "/", nil)
+		ctx.Params = gin.Params{{Key: "name", Value: name}}
+		c.handlePhoto(ctx)
+		return w
+	}
+	ok := serve(strings.TrimPrefix(path, "/answer/api/v1/ib-ldap/foto/"))
+	if ok.Code != http.StatusOK || ok.Header().Get("Content-Type") != "image/png" || !bytes.Equal(ok.Body.Bytes(), pngBytes) {
+		t.Errorf("resim sunulmadı: %d %s", ok.Code, ok.Header().Get("Content-Type"))
+	}
+	if w := serve("1234567-0000000000000000"); w.Code != http.StatusNotFound {
+		t.Errorf("yanlış hash %d döndü", w.Code)
+	}
+
+	// Yanlış parola, resim olmayan yanıt ve kapalı ayar: boş yol, hata yok.
+	if got := c.avatarFor(context.Background(), cfg, "1234567", "yanlis", caller); got != "" {
+		t.Errorf("yanlış parolada yol = %q", got)
+	}
+	jsonSrv, _ := fakeYAPI(t, []byte(`{"error":"yok"}`))
+	if got := c.avatarFor(context.Background(), Config{PhotoURL: jsonSrv.URL}.normalized(), "1234567", "dogru", caller); got != "" {
+		t.Errorf("JSON yanıtta yol = %q", got)
+	}
+	if got := c.avatarFor(context.Background(), Config{}.normalized(), "1234567", "dogru", caller); got != "" {
+		t.Errorf("ayar kapalıyken yol = %q", got)
+	}
+}
+
+func md5hex(s string) string {
+	sum := md5.Sum([]byte(s)) //nolint:gosec // sözleşme
+	return hex.EncodeToString(sum[:])
 }

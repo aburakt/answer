@@ -1,6 +1,6 @@
 {
-  "short_name": "Answer",
-  "name": "Apache Answer",
+  "short_name": "Forum",
+  "name": "İstihbarat Başkanlığı Forum Uygulaması",
   "icons": [
     {
       "src": "favicon.ico",
@@ -10,6 +10,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
+  "theme_color": "#061c5f",
   "background_color": "#ffffff"
 }

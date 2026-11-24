@@ -20,7 +20,7 @@
 import { create } from 'zustand';
 
 import { AdminSettingsTheme } from '@/common/interface';
-import { DEFAULT_THEME_COLOR } from '@/common/constants';
+import { DEFAULT_NAVBAR_COLOR, DEFAULT_THEME_COLOR } from '@/common/constants';
 
 interface IType {
   theme: AdminSettingsTheme['theme'];
@@ -37,7 +37,7 @@ const store = create<IType>((set) => ({
   theme_options: [{ label: 'Default', value: 'default' }],
   theme_config: {
     default: {
-      navbar_style: DEFAULT_THEME_COLOR,
+      navbar_style: DEFAULT_NAVBAR_COLOR,
       primary_color: DEFAULT_THEME_COLOR,
     },
   },
@@ -46,7 +46,7 @@ const store = create<IType>((set) => ({
     set((state) => {
       // Compatibility default value is colored or light before v1.5.1
       if (!params.theme_config.default.navbar_style.startsWith('#')) {
-        params.theme_config.default.navbar_style = DEFAULT_THEME_COLOR;
+        params.theme_config.default.navbar_style = DEFAULT_NAVBAR_COLOR;
       }
       return {
         ...state,

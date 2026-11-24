@@ -74,6 +74,8 @@ const (
 	closeActionName                 = "action.close"
 	reopenActionName                = "action.reopen"
 	pinActionName                   = "action.pin"
+	announceActionName              = "action.announce"
+	unannounceActionName            = "action.unannounce"
 	unpinActionName                 = "action.unpin"
 	hideActionName                  = "action.hide"
 	showActionName                  = "action.show"

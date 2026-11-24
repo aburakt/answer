@@ -209,13 +209,19 @@ func fail(c *gin.Context, status int, msg string) {
 func (h *Hook) receive(c *gin.Context) {
 	// Agent rotaları eklenti kapalıyken de bağlı kalır; kontrol burada.
 	if !plugin.StatusManager.IsEnabled(slugName) {
-		fail(c, http.StatusNotFound, "hook eklentisi kapalı")
+		// 503: gönderen (Kılavuz) 5xx'i yeniden dener, 404'te olayı bırakır.
+		fail(c, http.StatusServiceUnavailable, "hook eklentisi kapalı")
 		return
 	}
 	src, ok := h.source(c.Param("source"))
 	secret := h.secret(c.Param("source"))
-	if !ok || len(secret) == 0 {
+	if !ok {
 		fail(c, http.StatusNotFound, "bilinmeyen kaynak")
+		return
+	}
+	if len(secret) == 0 {
+		// Kaynak tanımlı ama secret henüz verilmemiş: kurulum eksiği, olay kaybolmasın.
+		fail(c, http.StatusServiceUnavailable, "kaynağın secret'ı tanımlı değil")
 		return
 	}
 	body, err := io.ReadAll(io.LimitReader(c.Request.Body, maxBody+1))
