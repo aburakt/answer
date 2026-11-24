@@ -350,6 +350,14 @@ func (us *UserExternalLoginService) activeUser(ctx context.Context, oldUserInfo 
 	// themselves, so a rename in LDAP is picked up at the next login.
 	us.syncUsername(ctx, oldUserInfo, externalUserInfo.Username)
 
+	// ib: so does the display name; users cannot change it either.
+	if name := strings.TrimSpace(externalUserInfo.DisplayName); name != "" && name != oldUserInfo.DisplayName {
+		oldUserInfo.DisplayName = name
+		if err = us.userRepo.UpdateInfo(ctx, oldUserInfo); err != nil {
+			log.Error(err)
+		}
+	}
+
 	// ib: the avatar follows the connector too (upstream only fills an empty
 	// one). Users cannot change it, so every login refreshes it; a login without
 	// an avatar keeps the stored one.

@@ -124,8 +124,9 @@ yeni imaj `docker compose up` ile değil, adım adım başlatılır.
 - Gravatar intranetten erişilemediği için kapalıdır: seçenek arayüzden kaldırıldı,
   veritabanında kalmış bir gravatar seçimi de `system` avatar olarak gösterilir.
 - Kullanıcı adı LDAP kullanıcı adıdır (sicil): ilk girişte öyle açılır, LDAP'ta
-  değişirse sonraki girişte güncellenir. Yönetici dışındaki kullanıcı kendi
-  kullanıcı adını ve profil resmini değiştiremez (sunucu isteği yok sayar).
+  değişirse sonraki girişte güncellenir. Görünen ad da LDAP'taki addır ve her
+  girişte eşitlenir. Yönetici dışındaki kullanıcı kendi kullanıcı adını, görünen
+  adını ve profil resmini değiştiremez (sunucu isteği yok sayar).
 - Profil resmi: LDAP eklentisinin "Profil resmi için YAPI URL'si" ayarı doluysa
   girişte giris'teki istekle alınır (`PERSONEL_WEB · personel ·
   get_foto_from_redis_by_sicil`). Forumda YAPI oturumu olmadığı için eklenti önce

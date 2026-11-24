@@ -1245,17 +1245,17 @@ ui:
       password:
         show: Parolayı göster
         hide: Parolayı gizle
-      unavailable: LDAP girişi henüz açılmadı. Site yöneticisine başvurun.
+      unavailable: Kurum hesabıyla giriş henüz açılmadı. Site yöneticisine başvurun.
       reason:
         credentials: "Sicil ya da parola hatalı."
-        mail: "LDAP kaydınızda e-posta adresi yok. Site yöneticisine başvurun."
-        account: "LDAP'taki e-posta adresiniz forumda başka bir hesaba bağlı ya da hesabınız kapatılmış. Site yöneticisine başvurun."
-        connect: "Giriş şu an yapılamıyor: LDAP sunucusuna ulaşılamadı. (kod: connect)"
-        tls: "Giriş şu an yapılamıyor: LDAP sunucusuyla güvenli bağlantı kurulamadı. (kod: tls)"
-        bind: "Giriş şu an yapılamıyor: LDAP servis hesabı reddedildi. (kod: bind)"
-        search: "Giriş şu an yapılamıyor: LDAP araması başarısız. (kod: search)"
-        config: "Giriş şu an yapılamıyor: LDAP ayarları eksik. (kod: config)"
-        identity: "Giriş şu an yapılamıyor: LDAP kaydınızda kimlik alanı boş. (kod: identity)"
+        mail: "Kurum hesabınızda e-posta adresi yok. Site yöneticisine başvurun."
+        account: "Kurum hesabınızdaki e-posta adresiniz forumda başka bir hesaba bağlı ya da hesabınız kapatılmış. Site yöneticisine başvurun."
+        connect: "Giriş şu an yapılamıyor: kurum hesabı sunucusuna ulaşılamadı. (kod: connect)"
+        tls: "Giriş şu an yapılamıyor: kurum hesabı sunucusuyla güvenli bağlantı kurulamadı. (kod: tls)"
+        bind: "Giriş şu an yapılamıyor: forumun servis hesabı reddedildi. (kod: bind)"
+        search: "Giriş şu an yapılamıyor: kurum hesabı araması başarısız. (kod: search)"
+        config: "Giriş şu an yapılamıyor: giriş ayarları eksik. (kod: config)"
+        identity: "Giriş şu an yapılamıyor: kurum hesabınızda kimlik alanı boş. (kod: identity)"
         origin: "Giriş reddedildi: site adresi tarayıcıdaki adresle eşleşmiyor. (kod: origin)"
         internal: "Hesabınız oluşturulurken hata oluştu. Yeniden deneyin; sürerse site yöneticisine başvurun. (kod: internal)"
         unknown: "Giriş yapılamadı. Site yöneticisine başvurun. (kod: unknown)"
@@ -1338,6 +1338,7 @@ ui:
         label: Görünen ad
         msg: Görünen ad boş olamaz.
         msg_range: Görünen ad 2-30 karakter uzunluğunda olmalıdır.
+        locked: Görünen adınız kurum hesabınızdan gelir ve değiştirilemez.
       username:
         label: Kullanıcı adı
         caption: İnsanlar size "@kullaniciadi" şeklinde bahsedebilir.

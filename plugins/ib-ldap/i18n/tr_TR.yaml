@@ -19,7 +19,7 @@ plugin:
   ldap_connector:
     backend:
       name:
-        other: LDAP
+        other: Kurum hesabı
       info:
         name:
           other: LDAP girişi

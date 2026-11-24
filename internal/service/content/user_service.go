@@ -493,9 +493,10 @@ func (us *UserService) formatUserInfoForUpdateInfo(
 	userInfo.Website = req.Website
 	userInfo.Location = req.Location
 	// ib: see UpdateInfo. Whatever the request carries, a non-admin keeps the
-	// stored username and avatar.
+	// stored username, display name and avatar: all three come from LDAP.
 	if !req.IsSiteAdmin {
 		userInfo.Username = oldUserInfo.Username
+		userInfo.DisplayName = oldUserInfo.DisplayName
 		userInfo.Avatar = oldUserInfo.Avatar
 	}
 	return userInfo
