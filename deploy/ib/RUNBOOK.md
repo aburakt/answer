@@ -86,6 +86,8 @@ yeni imaj `docker compose up` ile değil, adım adım başlatılır.
 12. **Bot hesabı.** Kılavuz konularını açan hesap (ör. `kilavuz-bot@egmidb.gov.tr`)
     Admin > Kullanıcılar'dan yerel hesap olarak açılır; LDAP'ta olması gerekmez,
     login olmaz.
+    Hook kaynağındaki `bot_email` bu hesabın e-postasıyla aynı olmalı; hesap yoksa
+    plugin 422 döner ve Kılavuz o olayı yeniden denemez.
 13. **Hook kaynakları.** Admin > Eklentiler > Hook geçidi açılır, kaynaklar girilir,
     `ANSWER_HOOK_SECRET_<ID>` değerleri `.env`'e konur, `docker compose up -d`.
 

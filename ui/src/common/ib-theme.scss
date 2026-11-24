@@ -395,16 +395,20 @@ html[data-bs-theme='dark'] .pagination {
 }
 
 // Gri kenarlı düğmeler ve sıralama sekmeleri (En Yeni, Aktif...): ince
-// kenar; seçili olan açık temada lacivert dolgu, koyu temada altın tonu.
+// kenar; seçili olan açık temada açık lacivert, koyu temada altın tonu.
 .btn-outline-secondary {
   --bs-btn-color: var(--ib-muted);
   --bs-btn-border-color: rgba(var(--ib-navy-rgb), 0.22);
   --bs-btn-hover-color: var(--ib-navy);
   --bs-btn-hover-bg: rgba(var(--ib-navy-rgb), 0.06);
   --bs-btn-hover-border-color: rgba(var(--ib-navy-rgb), 0.3);
-  --bs-btn-active-color: #fff;
-  --bs-btn-active-bg: var(--ib-navy);
-  --bs-btn-active-border-color: var(--ib-navy);
+  --bs-btn-active-color: var(--ib-navy);
+  --bs-btn-active-bg: rgba(var(--ib-navy-rgb), 0.1);
+  --bs-btn-active-border-color: rgba(var(--ib-navy-rgb), 0.45);
+
+  &.active {
+    font-weight: 500;
+  }
 }
 
 .btn-outline-success {
@@ -419,8 +423,8 @@ html[data-bs-theme='dark'] .pagination {
     --bs-btn-hover-bg: rgba(255, 255, 255, 0.07);
     --bs-btn-hover-border-color: rgba(255, 255, 255, 0.24);
     --bs-btn-active-color: #f0e2c4;
-    --bs-btn-active-bg: rgba(var(--ib-gold-rgb), 0.2);
-    --bs-btn-active-border-color: rgba(var(--ib-gold-rgb), 0.6);
+    --bs-btn-active-bg: rgba(var(--ib-gold-rgb), 0.14);
+    --bs-btn-active-border-color: rgba(var(--ib-gold-rgb), 0.45);
   }
 
   .btn-outline-success {
