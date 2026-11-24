@@ -1341,7 +1341,7 @@ ui:
       username:
         label: Kullanıcı adı
         caption: İnsanlar size "@kullaniciadi" şeklinde bahsedebilir.
-        locked: Kullanıcı adınız LDAP'tan gelir ve değiştirilemez.
+        locked: Kullanıcı adınız sicil numaranızdır ve değiştirilemez.
         msg: Kullanıcı adı boş olamaz.
         msg_range: Kullanıcı adı 2-30 karakter uzunluğunda olmalıdır.
         character: "Yalnızca \"a-z\", \"0-9\", \"- . _\" karakterleri kullanılabilir"
