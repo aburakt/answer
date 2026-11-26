@@ -126,31 +126,3 @@ func GetQuestionExtendsPermission(ctx context.Context, canInviteOtherToAnswer bo
 	}
 	return actions
 }
-
-// WithAnnouncementActions adds the announcement actions (ib). Whoever may pin
-// may announce; an announcement shows "unannounce" in place of "unpin".
-func WithAnnouncementActions(ctx context.Context, actions []*schema.PermissionMemberAction,
-	announced bool) []*schema.PermissionMemberAction {
-	lang := handler.GetLangByCtx(ctx)
-	out := make([]*schema.PermissionMemberAction, 0, len(actions)+1)
-	for _, a := range actions {
-		switch {
-		case a.Action == "pin" || (a.Action == "unpin" && !announced):
-			// A question that is only pinned can still be turned into an announcement.
-			out = append(out, a, &schema.PermissionMemberAction{
-				Action: "announce",
-				Name:   translator.Tr(lang, announceActionName),
-				Type:   "confirm",
-			})
-		case a.Action == "unpin" && announced:
-			out = append(out, &schema.PermissionMemberAction{
-				Action: "unannounce",
-				Name:   translator.Tr(lang, unannounceActionName),
-				Type:   "confirm",
-			})
-		default:
-			out = append(out, a)
-		}
-	}
-	return out
-}

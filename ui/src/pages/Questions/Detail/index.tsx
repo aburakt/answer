@@ -246,9 +246,17 @@ const Index = () => {
   return (
     <Row className="questionDetailPage pt-4 mb-5">
       <Col className="page-main flex-auto">
-        {/* ib: duyuruda yalnız duyuru bandı; "kapatıldı" uyarısı gösterilmez. */}
-        {Number(question?.announced_at) > 0 ? (
-          <IbAnnouncement time={Number(question?.announced_at)} />
+        {/* ib: kapatılmış soru duyurudur; "kapatıldı" uyarısı yerine duyuru bandı. */}
+        {Number(question?.status) === 2 &&
+        question?.operation?.level === 'info' ? (
+          <IbAnnouncement
+            time={Number(question.operation.time)}
+            note={
+              question.operation.msg?.startsWith('http')
+                ? ''
+                : question.operation.msg
+            }
+          />
         ) : (
           question?.operation?.level && <Alert data={question.operation} />
         )}

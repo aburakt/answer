@@ -51,7 +51,7 @@ const UsersSettings = () => {
             ? t('default', { keyPrefix: 'settings.profile.avatar' })
             : v.label,
         ),
-        default: setting?.default_avatar || 'system',
+        default: 'system',
       },
       gravatar_base_url: {
         type: 'string',
@@ -82,7 +82,8 @@ const UsersSettings = () => {
     gravatar_base_url: {
       'ui:widget': 'input',
       'ui:options': {
-        placeholder: 'https://www.gravatar.com/avatar/',
+        // ib: alan artık profil resmi servisinin adresidir
+        placeholder: 'http://sunucu/foto',
       },
     },
   };
@@ -124,7 +125,11 @@ const UsersSettings = () => {
       const formMeta = {};
       Object.keys(setting).forEach((k) => {
         let v = setting[k];
-        if (k === 'default_avatar' && !v) {
+        // ib: gravatar seçeneği kaldırıldı; kayıtlı eski değer "system" sayılır
+        if (
+          k === 'default_avatar' &&
+          !SYSTEM_AVATAR_OPTIONS.some((o) => o.value === v)
+        ) {
           v = 'system';
         }
         if (k === 'gravatar_base_url' && !v) {

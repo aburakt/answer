@@ -194,6 +194,9 @@ func Migrate(debug bool, dbConf *data.Database, cacheConf *data.CacheConf, upgra
 		}
 		currentDBVersion++
 	}
+	// ib: runs on every start (the entrypoint calls `answer upgrade`), so a new
+	// image shows the fork's badge icons without a manual SQL step.
+	syncIbBadgeIcons(engine)
 	if cache != nil {
 		cacheCleanup()
 	}

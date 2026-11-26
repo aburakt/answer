@@ -246,12 +246,6 @@ const Index: FC<IProps> = ({
     if (params.operation === 'unpin') {
       msg = t('post_unpin', { keyPrefix: 'messages' });
     }
-    if (params.operation === 'announce') {
-      msg = t('post_announce', { keyPrefix: 'messages' });
-    }
-    if (params.operation === 'unannounce') {
-      msg = t('post_unannounce', { keyPrefix: 'messages' });
-    }
     if (params.operation === 'hide') {
       msg = t('post_hide_list', { keyPrefix: 'messages' });
     }
@@ -279,19 +273,6 @@ const Index: FC<IProps> = ({
         content: t('content', { keyPrefix: 'question_detail.pin' }),
         cancelBtnVariant: 'link',
         confirmText: t('confirm_btn', { keyPrefix: 'question_detail.pin' }),
-        onConfirm: () => {
-          handleCommon(params);
-        },
-      });
-    } else if (action === 'announce') {
-      // ib: duyuru = sabitleme + duyuru bandı; yanlışlıkla basılmasın diye onay.
-      Modal.confirm({
-        title: t('title', { keyPrefix: 'question_detail.announce' }),
-        content: t('content', { keyPrefix: 'question_detail.announce' }),
-        cancelBtnVariant: 'link',
-        confirmText: t('confirm_btn', {
-          keyPrefix: 'question_detail.announce',
-        }),
         onConfirm: () => {
           handleCommon(params);
         },
@@ -328,8 +309,6 @@ const Index: FC<IProps> = ({
     if (
       action === 'pin' ||
       action === 'unpin' ||
-      action === 'announce' ||
-      action === 'unannounce' ||
       action === 'hide' ||
       action === 'show'
     ) {
@@ -352,8 +331,6 @@ const Index: FC<IProps> = ({
         v.action === 'reopen' ||
         v.action === 'pin' ||
         v.action === 'unpin' ||
-        v.action === 'announce' ||
-        v.action === 'unannounce' ||
         v.action === 'hide' ||
         v.action === 'show',
     ) || [];

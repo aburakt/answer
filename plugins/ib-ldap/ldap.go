@@ -103,15 +103,12 @@ type Config struct {
 	ExternalIDAttr string `json:"external_id_attr"`
 	MailDomain     string `json:"mail_domain"`
 	TestUser       string `json:"test_user"`
-	// PhotoURL YAPI ucu (ör. https://giris.../yapi). Boşsa profil resmi alınmaz.
-	PhotoURL string `json:"photo_url"`
-	PhotoApp string `json:"photo_app"`
 }
 
 // normalized boşlukları atar ve boş bırakılan alanlara varsayılanı koyar.
 func (c Config) normalized() Config {
 	for _, p := range []*string{&c.Name, &c.Server, &c.Security, &c.TLSCACertPath, &c.BaseDN,
-		&c.BindDN, &c.UserAttr, &c.ExternalIDAttr, &c.MailDomain, &c.TestUser, &c.PhotoURL, &c.PhotoApp} {
+		&c.BindDN, &c.UserAttr, &c.ExternalIDAttr, &c.MailDomain, &c.TestUser} {
 		*p = strings.TrimSpace(*p)
 	}
 	// "sunucu:389" ya da yalnız "sunucu" yazılırsa ldap:// varsayılır.
@@ -129,9 +126,6 @@ func (c Config) normalized() Config {
 		c.ExternalIDAttr = c.UserAttr
 	}
 	c.MailDomain = strings.TrimPrefix(c.MailDomain, "@")
-	if c.PhotoApp == "" {
-		c.PhotoApp = photoApp
-	}
 	return c
 }
 
@@ -188,8 +182,7 @@ func (c *Connector) ConnectorSender(ctx *plugin.GinContext, _ string) string {
 }
 
 func (c *Connector) ConnectorReceiver(ctx *plugin.GinContext, receiverURL string) (plugin.ExternalLoginUserInfo, error) {
-	info, err := c.login(ctx.Request, receiverURL,
-		photoCaller{ClientIP: ctx.ClientIP(), UserAgent: ctx.Request.UserAgent()})
+	info, err := c.login(ctx.Request, receiverURL, ctx.GetString(PhotoBaseURLKey))
 	if err != nil {
 		// Parola ve servis parolası hiçbir zaman log'a yazılmaz.
 		log.Errorf("ldap girişi başarısız: %v", err)
@@ -197,7 +190,7 @@ func (c *Connector) ConnectorReceiver(ctx *plugin.GinContext, receiverURL string
 	return info, err
 }
 
-func (c *Connector) login(r *http.Request, receiverURL string, caller photoCaller) (info plugin.ExternalLoginUserInfo, err error) {
+func (c *Connector) login(r *http.Request, receiverURL, photoBase string) (info plugin.ExternalLoginUserInfo, err error) {
 	if err := checkSameOrigin(r, receiverURL); err != nil {
 		return info, err
 	}
@@ -224,7 +217,7 @@ func (c *Connector) login(r *http.Request, receiverURL string, caller photoCalle
 	if err != nil {
 		return info, err
 	}
-	info.Avatar = c.avatarFor(r.Context(), cfg, info.Username, password, caller)
+	info.Avatar = c.avatarFor(r.Context(), cfg, photoBase, info.Username)
 	return info, nil
 }
 
@@ -461,8 +454,6 @@ func (c *Connector) ConfigFields() []plugin.ConfigField {
 		input("external_id_attr", cfg.ExternalIDAttr, true, text),
 		input("mail_domain", raw.MailDomain, false, text),
 		input("test_user", raw.TestUser, false, text),
-		input("photo_url", raw.PhotoURL, false, text),
-		input("photo_app", cfg.PhotoApp, false, text),
 		{
 			Name: "test", Type: plugin.ConfigTypeButton,
 			Title:       plugin.MakeTranslator(i18n.ConfigTitle("test")),

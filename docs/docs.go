@@ -11067,10 +11067,6 @@ const docTemplate = `{
                 "accepted_answer_id": {
                     "type": "string"
                 },
-                "announced_at": {
-                    "description": "ib: unix time the question was marked as an announcement, 0 if it is not one",
-                    "type": "integer"
-                },
                 "answer_count": {
                     "type": "integer"
                 },

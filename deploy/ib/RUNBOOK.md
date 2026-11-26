@@ -54,8 +54,8 @@ yeni imaj `docker compose up` ile değil, adım adım başlatılır.
 6. **Kimlik eşleme.** `psql -v ON_ERROR_STOP=1 -U answer -f sql/10-keycloak-to-ldap.sql`
    İlk iki sorgu satır döndürürse dur: o kullanıcılar elle çözülür.
 7. **Ayarlar.** `psql -v ON_ERROR_STOP=1 -U answer -f sql/20-site-settings.sql`
-   İsteğe bağlı: `sql/30-duyurular.sql` eski sürümde kapatılıp sabitlenerek yapılmış
-   duyuruları yeni "Duyuru" işaretine çevirir (önce betiğin başındaki `SELECT` ile bakın).
+   Rozet ikonlarını uygulama her açılışta kendisi de düzeltir; betiğin geri kalanı
+   (kayıt kapatma, tema, varsayılan avatar) yalnız bu betikle gelir.
 8. **Başlat.** `docker compose up -d`
 9. **LDAP connector'ı aç.** Admin > Eklentiler > LDAP connector:
    - `LDAP sunucusu`: `ldaps://<sunucu>:636` ya da `ldap://<sunucu>:389`.
@@ -127,12 +127,15 @@ yeni imaj `docker compose up` ile değil, adım adım başlatılır.
   değişirse sonraki girişte güncellenir. Görünen ad da LDAP'taki addır ve her
   girişte eşitlenir. Yönetici dışındaki kullanıcı kendi kullanıcı adını, görünen
   adını ve profil resmini değiştiremez (sunucu isteği yok sayar).
-- Profil resmi: LDAP eklentisinin "Profil resmi için YAPI URL'si" ayarı doluysa
-  girişte giris'teki istekle alınır (`PERSONEL_WEB · personel ·
-  get_foto_from_redis_by_sicil`). Forumda YAPI oturumu olmadığı için eklenti önce
-  aynı sicil ve parolayla YAPI `giris` görevinden token alır. Resim alınamazsa
-  giriş yine başarılıdır, eski resim kalır; neden konteyner log'unda
-  "profil resmi alınamadı" satırındadır. Ayar boşsa hiçbir istek yapılmaz.
+- Profil resmi: Yönetim > Kullanıcılar > Ayarlar'daki "Profil resmi servisi
+  adresi" doluysa her girişte `GET <adres>/<sicil>` ile alınır (kimlik bilgisi
+  gönderilmez). Yanıt ham resim, base64 metin ya da içinde base64 resim olan JSON
+  olabilir. Resim eklentinin deposunda saklanır ve eski sürümden gelen profil
+  resminin yerine geçer. Resim alınamazsa giriş yine başarılıdır, eski resim
+  kalır; neden konteyner log'unda "profil resmi alınamadı" ya da "resim
+  döndürmedi" satırındadır. Adres boşsa ya da kurulumdan kalan gravatar.com
+  adresiyse hiçbir istek yapılmaz. Sertifika ayarları LDAP eklentisindeki
+  CA/doğrulama ayarlarıdır.
 - Geri dönüş: OAuth2 Temel yeniden açılır, `basic` satırları yerinde duruyor.
 
 ## Kilitlenirsen
@@ -200,11 +203,10 @@ Yol: yeni etiketten `ib/vX.Y.Z` dalı açılır, bu commit'ler cherry-pick edili
 
 ## Duyuru
 
-Yönetici ve moderatör, sorunun menüsünden **Duyuru Yap** ile soruyu duyuruya
-çevirir: soru sabitlenir ve üstünde duyuru bandı görünür. **Duyuruyu Kaldır**
-ikisini de geri alır. Eski sürümdeki gibi soruyu kapatmak gerekmez; duyuruya
-cevap yazılması istenmiyorsa ayrıca **Kapat** kullanılır (bant yine duyuru
-olarak kalır). İşaret `meta` tablosunda `ib.question.announcement` anahtarıyla
-durur. Fork dosyaları: `internal/service/permission/question_permission.go`
-(`WithAnnouncementActions`), `question_service.go` (`OperationQuestion`),
-`ui/src/pages/Questions/Detail/components/IbAnnouncement`.
+Ayrı bir duyuru işlemi yoktur: kapatılmış soru duyuru sayılır. Yönetici ya da
+moderatör soruyu **Kapat** ile kapatır (istenirse **Sabitle** ile üste alır);
+soru listelerde `[DUYURU]` ekiyle, sayfasında "DUYURU / Duyuru tarihi" bandıyla
+görünür. Bu yalnız çeviri ve arayüzdür (`i18n/tr_TR.yaml` içindeki `closed`
+anahtarları, `ui/src/pages/Questions/Detail/components/IbAnnouncement`);
+veritabanında değişiklik yoktur, eski sürümde kapatılmış sorular kendiliğinden
+duyuru olarak görünür.
