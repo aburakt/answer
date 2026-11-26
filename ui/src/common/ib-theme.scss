@@ -487,3 +487,29 @@ html .nav-pills {
 html[data-bs-theme='dark'] .nav-pills {
   --bs-nav-pills-link-active-color: #f0e2c4;
 }
+
+// Sabitlenmiş sorular: satır sayfa zemininde durur (alttaki soru kartlarıyla aynı
+// yüzey değil), kartların kendisi yüzey renginde ve ince altın çerçevelidir.
+.list-group-item.ib-pin-row,
+.list-group-item.ib-pin-item {
+  background: transparent;
+}
+
+.list-group-item.ib-pin-row {
+  border-top: 0;
+}
+
+.ib-pin-card {
+  background: var(--ib-surface);
+  border-color: rgba(var(--ib-gold-rgb), 0.6) !important;
+  box-shadow: 0 1px 2px rgba(var(--ib-navy-rgb), 0.06);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--ib-gold) !important;
+    box-shadow: 0 0 0 1px rgba(var(--ib-gold-rgb), 0.35);
+  }
+}
