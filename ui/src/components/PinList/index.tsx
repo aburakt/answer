@@ -29,12 +29,13 @@ interface IProps {
   data: any[];
 }
 
+// ib: sabitler liste zemininden ayrılır, kartları altın çerçevelidir (ib-theme.scss).
 const PinList: FC<IProps> = ({ data }) => {
   const { t } = useTranslation('translation', { keyPrefix: 'question' });
   if (!data?.length) return null;
 
   return (
-    <ListGroup.Item className="py-3 px-0 border-start-0 border-end-0">
+    <ListGroup.Item className="ib-pin-row py-3 px-0 border-start-0 border-end-0">
       <Stack
         direction="horizontal"
         gap={3}
@@ -45,14 +46,14 @@ const PinList: FC<IProps> = ({ data }) => {
               action
               as="li"
               key={item.id}
-              className="border-0 p-0"
+              className="ib-pin-item border-0 p-0"
               style={{
                 minWidth: '238px',
                 width: `${100 / data.length}%`,
               }}>
               <NavLink
                 to={pathFactory.questionLanding(item.id, item.url_title)}
-                className="border rounded h-100 d-flex flex-column justify-content-between p-3">
+                className="ib-pin-card border rounded h-100 d-flex flex-column justify-content-between p-3">
                 <h6 className="text-wrap link-dark text-break text-truncate-2">
                   {item.title}
                   {item.status === 2 ? ` [${t('closed')}]` : ''}
