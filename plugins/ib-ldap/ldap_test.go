@@ -24,12 +24,11 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"crypto/elliptic"
-	"crypto/md5" //nolint:gosec // sözleşme
 	"crypto/rand"
 	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
-	"encoding/hex"
+	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
 	"errors"
@@ -238,7 +237,7 @@ func TestLogin(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			info, err := newConnector(t, tc.cfg).login(loginRequest(tc.user, tc.pass), receiver, photoCaller{})
+			info, err := newConnector(t, tc.cfg).login(loginRequest(tc.user, tc.pass), receiver, "")
 			if got := codeOf(err); got != tc.wantCode {
 				t.Fatalf("kod = %q (%v), beklenen %q", got, err, tc.wantCode)
 			}
@@ -359,32 +358,17 @@ func (m memStore) Set(_ context.Context, p plugin.KVParams) error {
 	return nil
 }
 
-// fakeYAPI giris'in iki isteğini bekler: önce "giris" (X-Token: login), sonra
-// get_foto_from_redis_by_sicil (X-Token: oturum token'ı, X-Uid: sicil).
-func fakeYAPI(t *testing.T, photo []byte) (*httptest.Server, *[]http.Header) {
+// fakePhotos resim servisi: GET /foto/<sicil>, gövde olarak verilen yanıtı döner.
+func fakePhotos(t *testing.T, body []byte) (*httptest.Server, *[]string) {
 	t.Helper()
-	var seen []http.Header
+	var seen []string
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var body map[string]string
-		_ = json.NewDecoder(r.Body).Decode(&body)
-		seen = append(seen, r.Header.Clone())
-		switch {
-		case body["maintask"] == "giris":
-			if r.Header.Get("X-Token") != "login" || body["password"] != "dogru" || body["application"] != "GIRIS_DASHBOARD" {
-				_, _ = w.Write([]byte(`{"login":false}`))
-				return
-			}
-			_, _ = w.Write([]byte(`{"login":true,"X-Token":"tok-1"}`))
-		case body["subtask"] == "get_foto_from_redis_by_sicil":
-			if r.Header.Get("X-Token") != "tok-1" || r.Header.Get("X-Uid") != body["sicil"] ||
-				body["application"] != "PERSONEL_WEB" || body["maintask"] != "personel" || body["uid"] != body["sicil"] {
-				w.WriteHeader(http.StatusUnauthorized)
-				return
-			}
-			_, _ = w.Write(photo)
-		default:
-			w.WriteHeader(http.StatusBadRequest)
+		seen = append(seen, r.Method+" "+r.URL.Path)
+		if r.URL.Path != "/foto/1234567" {
+			w.WriteHeader(http.StatusNotFound)
+			return
 		}
+		_, _ = w.Write(body)
 	}))
 	t.Cleanup(srv.Close)
 	return srv, &seen
@@ -392,26 +376,25 @@ func fakeYAPI(t *testing.T, photo []byte) (*httptest.Server, *[]http.Header) {
 
 var pngBytes = []byte("\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00")
 
-func TestAvatarFromYAPI(t *testing.T) {
+func TestAvatarFromPhotoService(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	srv, seen := fakeYAPI(t, pngBytes)
+	srv, seen := fakePhotos(t, pngBytes)
 	c := New()
 	c.kv = memStore{}
-	cfg := Config{PhotoURL: srv.URL}.normalized()
-	caller := photoCaller{ClientIP: "10.0.0.7", UserAgent: "Mozilla/5.0"}
+	cfg := Config{}.normalized()
 
-	path := c.avatarFor(context.Background(), cfg, "1234567", "dogru", caller)
+	// Sondaki "/" olsa da olmasa da adres <temel>/<sicil> olur.
+	path := c.avatarFor(context.Background(), cfg, srv.URL+"/foto/", "1234567")
 	if !strings.HasPrefix(path, "/answer/api/v1/ib-ldap/foto/1234567-") {
 		t.Fatalf("avatar yolu = %q", path)
 	}
-	// Başlıklar giris ile aynı: X-Clientip, X-User-Agent = md5(userAgent).
-	for i, h := range *seen {
-		if h.Get("X-Clientip") != "10.0.0.7" || h.Get("X-User-Agent") != md5hex("Mozilla/5.0") {
-			t.Errorf("istek %d başlıkları = %v", i, h)
-		}
+	if again := c.avatarFor(context.Background(), cfg, srv.URL+"/foto", "1234567"); again != path {
+		t.Errorf("aynı resim farklı yol verdi: %q != %q", again, path)
 	}
-	if (*seen)[0].Get("X-Uid") != "" {
-		t.Errorf("login isteğinde X-Uid olmamalı")
+	for _, s := range *seen {
+		if s != "GET /foto/1234567" {
+			t.Errorf("istek = %q", s)
+		}
 	}
 
 	serve := func(name string) *httptest.ResponseRecorder {
@@ -430,20 +413,43 @@ func TestAvatarFromYAPI(t *testing.T) {
 		t.Errorf("yanlış hash %d döndü", w.Code)
 	}
 
-	// Yanlış parola, resim olmayan yanıt ve kapalı ayar: boş yol, hata yok.
-	if got := c.avatarFor(context.Background(), cfg, "1234567", "yanlis", caller); got != "" {
-		t.Errorf("yanlış parolada yol = %q", got)
+	// Resmi olmayan sicil (404), resim olmayan yanıt ve kapalı ayar: boş yol.
+	if got := c.avatarFor(context.Background(), cfg, srv.URL+"/foto", "7654321"); got != "" {
+		t.Errorf("resmi olmayan sicilde yol = %q", got)
 	}
-	jsonSrv, _ := fakeYAPI(t, []byte(`{"error":"yok"}`))
-	if got := c.avatarFor(context.Background(), Config{PhotoURL: jsonSrv.URL}.normalized(), "1234567", "dogru", caller); got != "" {
-		t.Errorf("JSON yanıtta yol = %q", got)
+	jsonSrv, _ := fakePhotos(t, []byte(`{"error":"yok"}`))
+	if got := c.avatarFor(context.Background(), cfg, jsonSrv.URL+"/foto", "1234567"); got != "" {
+		t.Errorf("JSON hata yanıtında yol = %q", got)
 	}
-	if got := c.avatarFor(context.Background(), Config{}.normalized(), "1234567", "dogru", caller); got != "" {
-		t.Errorf("ayar kapalıyken yol = %q", got)
+	for _, base := range []string{"", "  ", "foto-servisi", "ftp://sunucu/foto", "https://www.gravatar.com/avatar/"} {
+		if got := c.avatarFor(context.Background(), cfg, base, "1234567"); got != "" {
+			t.Errorf("%q adresinde yol = %q", base, got)
+		}
 	}
 }
 
-func md5hex(s string) string {
-	sum := md5.Sum([]byte(s)) //nolint:gosec // sözleşme
-	return hex.EncodeToString(sum[:])
+// Redis'te resim çoğunlukla base64 durur; servis onu düz metin, data URI ya da
+// JSON alanı olarak verebilir.
+func TestPhotoEncodings(t *testing.T) {
+	b64 := base64.StdEncoding.EncodeToString(pngBytes)
+	for name, body := range map[string]string{
+		"ham":        string(pngBytes),
+		"base64":     b64 + "\n",
+		"data uri":   "data:image/png;base64," + b64,
+		"json":       `{"sicil":"1234567","foto":"` + b64 + `"}`,
+		"json dizi":  `{"data":[{"foto":"data:image/png;base64,` + b64 + `"}]}`,
+		"json metin": `"` + b64 + `"`,
+	} {
+		srv, _ := fakePhotos(t, []byte(body))
+		c := New()
+		c.kv = memStore{}
+		if got := c.avatarFor(context.Background(), Config{}.normalized(), srv.URL+"/foto", "1234567"); got == "" {
+			t.Errorf("%s: resim tanınmadı", name)
+		}
+	}
+	for name, body := range map[string]string{"boş": "", "metin": "resim bulunamadı", "html": "<html><body>hata</body></html>"} {
+		if data := decodePhoto([]byte(body)); data != nil {
+			t.Errorf("%s: resim sanıldı", name)
+		}
+	}
 }

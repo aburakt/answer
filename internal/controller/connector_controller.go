@@ -40,6 +40,8 @@ const (
 	commonRouterPrefix            = "/answer/api/v1"
 	ConnectorLoginRouterPrefix    = "/connector/login/"
 	ConnectorRedirectRouterPrefix = "/connector/redirect/"
+	// ib: plugins/ib-ldap PhotoBaseURLKey ile aynı.
+	ibPhotoBaseURLKey = "ib.photo_base_url"
 )
 
 // ConnectorController comment controller
@@ -148,6 +150,11 @@ func (cc *ConnectorController) ConnectorRedirect(connector plugin.Connector) (fn
 		}
 		receiverURL := fmt.Sprintf("%s%s%s%s", siteGeneral.SiteUrl,
 			commonRouterPrefix, ConnectorRedirectRouterPrefix, connector.ConnectorSlugName())
+		// ib: profil resmi servisinin adresi site ayarıdır (Yönetim > Kullanıcılar >
+		// Ayarlar); connector ona context üzerinden ulaşır (plugins/ib-ldap foto.go).
+		if users, usersErr := cc.siteInfoService.GetSiteUsersSettings(ctx); usersErr == nil && users != nil {
+			ctx.Set(ibPhotoBaseURLKey, users.GravatarBaseURL)
+		}
 		userInfo, err := connector.ConnectorReceiver(ctx, receiverURL)
 		if err != nil {
 			log.Errorf("connector received failed, error info: %v, response data is: %s", err, userInfo.MetaInfo)

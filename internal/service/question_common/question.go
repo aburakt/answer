@@ -290,13 +290,6 @@ func (qs *QuestionCommon) Info(ctx context.Context, questionID string, loginUser
 		}
 	}
 
-	// ib: announcements are always pinned, so other questions skip the lookup.
-	if resp.Pin == entity.QuestionPin {
-		if meta, e := qs.metaCommonService.GetMetaByObjectIdAndKey(ctx, questionInfo.ID, entity.QuestionAnnouncementKey); e == nil {
-			resp.AnnouncedAt = meta.CreatedAt.Unix()
-		}
-	}
-
 	if resp.Status != entity.QuestionStatusDeleted {
 		if resp.Tags, err = qs.tagCommon.GetObjectTag(ctx, questionID); err != nil {
 			return resp, err

@@ -47,10 +47,6 @@ backend:
       other: Erişim engellendi.
     pin:
       other: Sabitle
-    announce:
-      other: Duyuru Yap
-    unannounce:
-      other: Duyuruyu Kaldır
     hide:
       other: Listeden Kaldır
     unpin:
@@ -175,7 +171,7 @@ backend:
       cannot_update:
         other: Güncelleme izni yok.
       question_closed_cannot_add:
-        other: Sorular kapatıldı ve cevap eklenemez.
+        other: Duyurulara cevap eklenemez.
       content_cannot_empty:
         other: Cevap içeriği boş olamaz.
     comment:
@@ -464,7 +460,7 @@ backend:
       mention_you:
         other: sizden bahsetti
       your_question_is_closed:
-        other: Sorunuz kapatıldı
+        other: Sorunuz duyuru yapıldı
       your_question_was_deleted:
         other: Sorunuz silindi
       your_answer_was_deleted:
@@ -1447,7 +1443,7 @@ ui:
     Following: Takip Ediliyor
     follow_tip: Bildirim almak için bu soruyu takip edin
     answered: cevapladı
-    closed_in: Burada kapatıldı
+    closed_in: Duyuru tarihi
     show_exist: Var olan soruyu göster.
     useful: Faydalı
     question_useful: Faydalı ve açık
@@ -1495,12 +1491,7 @@ ui:
       title: Bu gönderiyi sabitle
       content: Küresel olarak sabitlemek istediğinizden emin misiniz? Bu gönderi tüm gönderi listelerinin en üstünde görünecektir.
       confirm_btn: Sabitle
-    announce:
-      title: Bu gönderiyi duyuru yap
-      content: Gönderi tüm listelerin en üstüne sabitlenecek ve duyuru bandıyla gösterilecek. Devam edilsin mi?
-      confirm_btn: Duyuru Yap
-      heading: DUYURU
-      date: Duyuru tarihi
+    announce_heading: DUYURU
   delete:
     title: Bu gönderiyi sil
     question: >-
@@ -1555,7 +1546,7 @@ ui:
     ignore: Yoksay
     submit: Gönder
     normal: "Normal"
-    closed: Kapalı
+    closed: Duyuru
     deleted: Silindi
     deleted_permanently: Kalıcı olarak silindi
     pending: Beklemede
@@ -1639,7 +1630,7 @@ ui:
     modified: değiştirildi
     answered: cevaplandı
     asked: soruldu
-    closed: kapandı
+    closed: DUYURU
     follow_a_tag: Bir etiketi takip et
     more: Daha Fazla
   personal:
@@ -2079,8 +2070,8 @@ ui:
         label: "Varsayılan avatar"
         text: "Kendi avatarı olmayan kullanıcılar için."
       gravatar_base_url:
-        label: "Gravatar temel adresi"
-        text: "Gravatar sağlayıcısının API temel adresi. Boş bırakılırsa kullanılmaz."
+        label: "Profil resmi servisi adresi"
+        text: "Kurum hesabıyla girişte profil resmi bu adresin sonuna /sicil eklenerek alınır. Boş bırakılırsa resim alınmaz."
     smtp:
       page_title: SMTP
       from_email:
@@ -2283,8 +2274,8 @@ ui:
         label: Varsayılan avatar
         text: Kendi özel avatarı olmayan kullanıcılar için.
       gravatar_base_url:
-        label: Gravatar temel URL'si
-        text: Gravatar sağlayıcısının API temel URL'si. Boş olduğunda dikkate alınmaz.
+        label: Profil resmi servisi adresi
+        text: Kurum hesabıyla girişte profil resmi bu adresin sonuna /sicil eklenerek alınır. Boş bırakılırsa resim alınmaz.
       profile_editable:
         title: Profil düzenlenebilir
       allow_update_display_name:
@@ -2432,7 +2423,7 @@ ui:
     edited: düzenlendi
     answered: cevaplandı
     asked: soruldu
-    closed: kapatıldı
+    closed: duyuru yapıldı
     reopened: yeniden açıldı
     created: oluşturuldu
     pin: sabitlendi
@@ -2468,15 +2459,13 @@ ui:
     post_cancel_deleted: Bu gönderinin silme işlemi geri alındı.
     post_pin: Bu gönderi sabitlendi.
     post_unpin: Bu gönderinin sabitlenmesi kaldırıldı.
-    post_announce: Bu gönderi duyuru yapıldı.
-    post_unannounce: Duyuru kaldırıldı.
     post_hide_list: Bu gönderi listede gizlendi.
     post_show_list: Bu gönderi listede gösterildi.
     post_reopen: Bu gönderi yeniden açıldı.
     post_list: Bu gönderi listelendi.
     post_unlist: Bu gönderi listeden kaldırıldı.
     post_pending: Gönderiniz inceleme bekliyor. Bu bir önizlemedir, onaylandıktan sonra görünür olacaktır.
-    post_closed: Bu gönderi kapatıldı.
+    post_closed: Bu gönderi duyuru yapıldı.
     answer_deleted: Bu cevap silindi.
     answer_cancel_deleted: Bu cevabın silme işlemi geri alındı.
     change_user_role: Bu kullanıcının rolü değiştirildi.

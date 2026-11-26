@@ -26,12 +26,14 @@ import { Icon } from '@/components';
 
 interface Props {
   time: number;
+  note?: string;
 }
 
-// ib: duyuru yapılan sorunun üstündeki bant.
-const Index: FC<Props> = ({ time }) => {
+// ib: kapatılmış sorunun üstündeki duyuru bandı; kapatırken yazılan not varsa
+// altında gösterilir.
+const Index: FC<Props> = ({ time, note }) => {
   const { t } = useTranslation('translation', {
-    keyPrefix: 'question_detail.announce',
+    keyPrefix: 'question_detail',
   });
   const { t: td } = useTranslation('translation', { keyPrefix: 'dates' });
   const at = dayjs.unix(time).tz();
@@ -39,16 +41,17 @@ const Index: FC<Props> = ({ time }) => {
     <div className="ib-announcement mb-4" role="note">
       <div className="ib-announcement-heading">
         <Icon name="megaphone-fill" className="me-2" />
-        {t('heading')}
+        {t('announce_heading')}
       </div>
       <div className="small">
-        {t('date')}{' '}
+        {t('closed_in')}{' '}
         <time
           dateTime={at.toISOString()}
           title={at.format(td('long_date_with_time'))}>
           {at.format(td('long_date_with_year'))}
         </time>
       </div>
+      {note ? <p className="mt-2 mb-0">{note}</p> : null}
     </div>
   );
 };

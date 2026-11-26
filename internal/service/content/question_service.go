@@ -478,8 +478,7 @@ func (qs *QuestionService) OperationQuestion(ctx context.Context, req *schema.Op
 		return nil
 	}
 	// Hidden question cannot be placed at the top
-	if questionInfo.Show == entity.QuestionHide &&
-		(req.Operation == schema.QuestionOperationPin || req.Operation == schema.QuestionOperationAnnounce) {
+	if questionInfo.Show == entity.QuestionHide && req.Operation == schema.QuestionOperationPin {
 		return nil
 	}
 	// Question cannot be hidden when they are at the top
@@ -528,22 +527,6 @@ func (qs *QuestionService) OperationQuestion(ctx context.Context, req *schema.Op
 		questionInfo.Pin = entity.QuestionPin
 	case schema.QuestionOperationUnPin:
 		questionInfo.Pin = entity.QuestionUnPin
-		// ib: an announcement is always pinned; unpinning ends it.
-		if err = qs.removeAnnouncement(ctx, questionInfo.ID); err != nil {
-			return err
-		}
-	case schema.QuestionOperationAnnounce:
-		questionInfo.Pin = entity.QuestionPin
-		if _, e := qs.metaService.GetMetaByObjectIdAndKey(ctx, questionInfo.ID, entity.QuestionAnnouncementKey); e != nil {
-			if err = qs.metaService.AddMeta(ctx, questionInfo.ID, entity.QuestionAnnouncementKey, "1"); err != nil {
-				return err
-			}
-		}
-	case schema.QuestionOperationUnAnnounce:
-		questionInfo.Pin = entity.QuestionUnPin
-		if err = qs.removeAnnouncement(ctx, questionInfo.ID); err != nil {
-			return err
-		}
 	}
 
 	err = qs.questionRepo.UpdateQuestionOperation(ctx, questionInfo)
@@ -556,8 +539,6 @@ func (qs *QuestionService) OperationQuestion(ctx context.Context, req *schema.Op
 	actMap[schema.QuestionOperationUnPin] = constant.ActQuestionUnPin
 	actMap[schema.QuestionOperationHide] = constant.ActQuestionHide
 	actMap[schema.QuestionOperationShow] = constant.ActQuestionShow
-	actMap[schema.QuestionOperationAnnounce] = constant.ActQuestionPin
-	actMap[schema.QuestionOperationUnAnnounce] = constant.ActQuestionUnPin
 	_, ok := actMap[req.Operation]
 	if ok {
 		qs.activityQueueService.Send(ctx, &schema.ActivityMsg{
@@ -569,15 +550,6 @@ func (qs *QuestionService) OperationQuestion(ctx context.Context, req *schema.Op
 	}
 
 	return nil
-}
-
-// removeAnnouncement drops the announcement mark of a question, if it has one.
-func (qs *QuestionService) removeAnnouncement(ctx context.Context, questionID string) error {
-	meta, err := qs.metaService.GetMetaByObjectIdAndKey(ctx, questionID, entity.QuestionAnnouncementKey)
-	if err != nil {
-		return nil
-	}
-	return qs.metaService.RemoveMeta(ctx, meta.ID)
 }
 
 // RemoveQuestion delete question
@@ -1161,8 +1133,6 @@ func (qs *QuestionService) GetQuestion(ctx context.Context, questionID, userID s
 		per.CanEdit, per.CanDelete,
 		per.CanClose, per.CanReopen, per.CanPin, per.CanHide, per.CanUnPin, per.CanShow,
 		per.CanRecover)
-	// ib: "announce" sits next to pin; an announcement offers "unannounce" instead of "unpin".
-	question.MemberActions = permission.WithAnnouncementActions(ctx, question.MemberActions, question.AnnouncedAt > 0)
 	question.ExtendsActions = permission.GetQuestionExtendsPermission(ctx, per.CanInviteOtherToAnswer)
 	return question, nil
 }

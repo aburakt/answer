@@ -27,8 +27,6 @@ const (
 	AnswerEditSummaryKey   = "answer.edit.summary"
 	TagEditSummaryKey      = "tag.edit.summary"
 	ObjectReactSummaryKey  = "object.react.summary"
-	// ib: a question marked as an announcement; created_at is the announcement date
-	QuestionAnnouncementKey = "ib.question.announcement"
 )
 
 // Meta meta

@@ -154,9 +154,9 @@ func (qc *QuestionController) OperationQuestion(ctx *gin.Context) {
 
 func canOperateQuestion(operation string, canList []bool) bool {
 	switch operation {
-	case schema.QuestionOperationPin, schema.QuestionOperationAnnounce:
+	case schema.QuestionOperationPin:
 		return canList[0]
-	case schema.QuestionOperationUnPin, schema.QuestionOperationUnAnnounce:
+	case schema.QuestionOperationUnPin:
 		return canList[1]
 	case schema.QuestionOperationHide:
 		return canList[2]

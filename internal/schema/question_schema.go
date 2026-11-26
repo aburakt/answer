@@ -37,9 +37,6 @@ const (
 	QuestionOperationUnPin = "unpin"
 	QuestionOperationHide  = "hide"
 	QuestionOperationShow  = "show"
-	// ib: announcement = pinned + announcement banner; needs the pin / unpin permission
-	QuestionOperationAnnounce   = "announce"
-	QuestionOperationUnAnnounce = "unannounce"
 )
 
 // RemoveQuestionReq delete question request
@@ -233,31 +230,29 @@ type QuestionBaseInfo struct {
 }
 
 type QuestionInfoResp struct {
-	ID                 string     `json:"id" `
-	Title              string     `json:"title"`
-	UrlTitle           string     `json:"url_title"`
-	Content            string     `json:"content"`
-	HTML               string     `json:"html"`
-	Description        string     `json:"description"`
-	Tags               []*TagResp `json:"tags"`
-	ViewCount          int        `json:"view_count"`
-	UniqueViewCount    int        `json:"unique_view_count"`
-	VoteCount          int        `json:"vote_count"`
-	AnswerCount        int        `json:"answer_count"`
-	CollectionCount    int        `json:"collection_count"`
-	FollowCount        int        `json:"follow_count"`
-	AcceptedAnswerID   string     `json:"accepted_answer_id"`
-	LastAnswerID       string     `json:"last_answer_id"`
-	CreateTime         int64      `json:"create_time"`
-	UpdateTime         int64      `json:"-"`
-	PostUpdateTime     int64      `json:"update_time"`
-	QuestionUpdateTime int64      `json:"edit_time"`
-	Pin                int        `json:"pin"`
-	Show               int        `json:"show"`
-	Status             int        `json:"status"`
-	Operation          *Operation `json:"operation,omitempty"`
-	// ib: unix time the question was marked as an announcement, 0 if it is not one
-	AnnouncedAt          int64          `json:"announced_at"`
+	ID                   string         `json:"id" `
+	Title                string         `json:"title"`
+	UrlTitle             string         `json:"url_title"`
+	Content              string         `json:"content"`
+	HTML                 string         `json:"html"`
+	Description          string         `json:"description"`
+	Tags                 []*TagResp     `json:"tags"`
+	ViewCount            int            `json:"view_count"`
+	UniqueViewCount      int            `json:"unique_view_count"`
+	VoteCount            int            `json:"vote_count"`
+	AnswerCount          int            `json:"answer_count"`
+	CollectionCount      int            `json:"collection_count"`
+	FollowCount          int            `json:"follow_count"`
+	AcceptedAnswerID     string         `json:"accepted_answer_id"`
+	LastAnswerID         string         `json:"last_answer_id"`
+	CreateTime           int64          `json:"create_time"`
+	UpdateTime           int64          `json:"-"`
+	PostUpdateTime       int64          `json:"update_time"`
+	QuestionUpdateTime   int64          `json:"edit_time"`
+	Pin                  int            `json:"pin"`
+	Show                 int            `json:"show"`
+	Status               int            `json:"status"`
+	Operation            *Operation     `json:"operation,omitempty"`
 	UserID               string         `json:"-"`
 	LastEditUserID       string         `json:"-"`
 	LastAnsweredUserID   string         `json:"-"`

@@ -48,10 +48,6 @@ backend:
       other: Forbidden.
     pin:
       other: Pin
-    announce:
-      other: Announce
-    unannounce:
-      other: Remove Announcement
     hide:
       other: Unlist
     unpin:
@@ -1521,12 +1517,7 @@ ui:
       title: Pin this post
       content: Are you sure you wish to pinned globally? This post will appear at the top of all post lists.
       confirm_btn: Pin
-    announce:
-      title: Make this post an announcement
-      content: The post will be pinned to the top of all post lists and shown with an announcement banner. Continue?
-      confirm_btn: Announce
-      heading: ANNOUNCEMENT
-      date: Announced on
+    announce_heading: ANNOUNCEMENT
   delete:
     title: Delete this post
     question: >-
@@ -2118,8 +2109,8 @@ ui:
         label: Default avatar
         text: For users without a custom avatar of their own.
       gravatar_base_url:
-        label: Gravatar base URL
-        text: URL of the Gravatar provider's API base. Ignored when empty.
+        label: Profile image service URL
+        text: On sign-in with the organisation account the profile image is fetched from this URL with /sicil appended. No image is fetched when empty.
     smtp:
       page_title: SMTP
       from_email:
@@ -2319,8 +2310,8 @@ ui:
         label: Default avatar
         text: For users without a custom avatar of their own.
       gravatar_base_url:
-        label: Gravatar base URL
-        text: URL of the Gravatar provider's API base. Ignored when empty.
+        label: Profile image service URL
+        text: On sign-in with the organisation account the profile image is fetched from this URL with /sicil appended. No image is fetched when empty.
       profile_editable:
         title: Profile editable
       allow_update_display_name:
@@ -2504,8 +2495,6 @@ ui:
     post_cancel_deleted: This post has been undeleted.
     post_pin: This post has been pinned.
     post_unpin: This post has been unpinned.
-    post_announce: This post is now an announcement.
-    post_unannounce: The announcement has been removed.
     post_hide_list: This post has been hidden from list.
     post_show_list: This post has been shown to list.
     post_reopen: This post has been reopened.
